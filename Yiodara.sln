@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32929.385
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yiodara.Api", "Yiodara.Api\Yiodara.Api.csproj", "{21211CB9-513E-4D2D-925A-A7AC89111C16}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yiodara.Application", "Yiodara.Application\Yiodara.Application.csproj", "{0EA9CA57-E059-4BE4-BAE4-2D7B7A072674}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yiodara.Infrastructure", "Yiodara.Infrastructure\Yiodara.Infrastructure.csproj", "{8FE1967A-8FAA-4B17-91F7-CE20EA995B4A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yiodara.Domain", "Yiodara.Domain\Yiodara.Domain.csproj", "{E943C5B7-C254-40EC-9D50-CBD0A5DA9EE4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{21211CB9-513E-4D2D-925A-A7AC89111C16}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21211CB9-513E-4D2D-925A-A7AC89111C16}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21211CB9-513E-4D2D-925A-A7AC89111C16}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21211CB9-513E-4D2D-925A-A7AC89111C16}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0EA9CA57-E059-4BE4-BAE4-2D7B7A072674}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0EA9CA57-E059-4BE4-BAE4-2D7B7A072674}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0EA9CA57-E059-4BE4-BAE4-2D7B7A072674}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0EA9CA57-E059-4BE4-BAE4-2D7B7A072674}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8FE1967A-8FAA-4B17-91F7-CE20EA995B4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8FE1967A-8FAA-4B17-91F7-CE20EA995B4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8FE1967A-8FAA-4B17-91F7-CE20EA995B4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8FE1967A-8FAA-4B17-91F7-CE20EA995B4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E943C5B7-C254-40EC-9D50-CBD0A5DA9EE4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E943C5B7-C254-40EC-9D50-CBD0A5DA9EE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E943C5B7-C254-40EC-9D50-CBD0A5DA9EE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E943C5B7-C254-40EC-9D50-CBD0A5DA9EE4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AC3E844A-53D3-451A-BAE1-F2E5F7258417}
+	EndGlobalSection
+EndGlobal
