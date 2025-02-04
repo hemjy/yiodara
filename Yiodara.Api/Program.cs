@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Serilog;
+using Yiodara.Application.Features.Auth.Commands;
 using Yiodara.Domain.Entities;
 using Yiodara.Infrastructure;
-using Yiodara.Infrastructure.Persistence.Contexts;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +14,12 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
+// register mediator
+builder.Services.AddMediatR(cfg => 
+cfg.RegisterServicesFromAssemblies(new[] { typeof(Program).Assembly, typeof(SignUpUserCommand).Assembly}));
+
+
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -21,8 +27,12 @@ Log.Logger = new LoggerConfiguration()
     .Enrich.FromLogContext()
     .CreateLogger();
 
+builder.Host.UseSerilog();
+
+// get config
 var config = builder.Configuration;
 
+// Add services
 builder.Services.AddInfrastructure(config, Log.Logger);
     
 var app = builder.Build();
@@ -43,12 +53,13 @@ using (var scope = app.Services.CreateScope())
 
 
 // Configure the HTTP request pipeline.
+app.UseSerilogRequestLogging();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -57,6 +68,7 @@ app.MapControllers();
 app.Run();
 
 
+// seed roles - donor, volunteer and admin
 static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
 {
     var roleNames = new[] { "Donor", "Volunteer", "Admin" };
@@ -82,7 +94,8 @@ static async Task SeedAdminUserAsync(UserManager<User> userManager, RoleManager<
         var user = new User
         {
             UserName = "admin@admin.com",
-            Email = "admin@admin.com"
+            Email = "admin@admin.com",
+            FullName = "admin"
         };
 
         var result = await userManager.CreateAsync(user, "Admin@123");

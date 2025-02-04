@@ -2,6 +2,7 @@
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -21,18 +22,19 @@ namespace Yiodara.Infrastructure.Identity
             _configuration = configuration;
         }
 
-        public (string token, string refreshToken, DateTime refreshTokenExp) GenerateJwtTokenInfo(string userId, string username, string role)
+        public (string token, string refreshToken, DateTime refreshTokenExp) GenerateJwtTokenInfo(string userId, string username, List<string> roles)
         {
             // Define claims for the JWT token
-            var claims = new[]
+            var claims = new List<Claim>
             {
         new Claim(ClaimTypes.Name, username),
         new Claim(ClaimTypes.Email, username),
         new Claim(ClaimTypes.NameIdentifier, userId), // Use NameIdentifier (PrimarySid) for user ID
-        new Claim(ClaimTypes.Role, role),
         new Claim(JwtRegisteredClaimNames.Sub, userId), // Subject: typically user ID or username
         new Claim(JwtRegisteredClaimNames.Iat, ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds().ToString(), ClaimValueTypes.String) // Issued At
-    };
+            };
+
+            claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
             // Secret key for signing the token (retrieved from configuration)
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"]));

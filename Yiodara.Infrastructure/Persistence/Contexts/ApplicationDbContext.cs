@@ -18,9 +18,12 @@ namespace Yiodara.Infrastructure.Persistence.Contexts
             this.Database.Migrate();
         }
 
-        public DbSet<Partner> RefreshTokens { get; set; }
+        public DbSet<Partner> Partners { get; set; }
 
         public DbSet<User> Users { get; set; }
+
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {

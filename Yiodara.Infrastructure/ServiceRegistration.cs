@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -24,13 +25,18 @@ namespace Yiodara.Infrastructure
             services.AddDbContext<ApplicationDbContext>(options =>
                         options.UseNpgsql(configuration.GetConnectionString("DefaultConnection") ?? ""));
 
-            services.AddIdentity<User, IdentityRole>()
-                        .AddEntityFrameworkStores<ApplicationDbContext>()
-                        .AddDefaultTokenProviders();
+            services.AddIdentity<User, IdentityRole>(options =>
+            {
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireNonAlphanumeric = true; 
+                options.Password.RequiredLength = 8;
+                options.Password.RequiredUniqueChars = 1;
+            })
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders();
 
-            services.AddScoped(typeof(IGenericRepositoryAsync<>), typeof(GenericRepositoryAsync<>));
-
-            services.AddTransient<IJwtTokenGenerator, JwtTokenGenerator>();
             // Add Identity services
 
             // Configure JWT Authentication
@@ -84,6 +90,7 @@ namespace Yiodara.Infrastructure
                 };
             });
 
+            // register swagger.
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Yiodara", Version = "v1" });
@@ -120,6 +127,14 @@ namespace Yiodara.Infrastructure
             {
                 options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
             });
+
+            // register serilog
+            services.AddSingleton(Log.Logger);
+
+            // register dependency injection
+            services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+            services.AddScoped(typeof(IGenericRepositoryAsync<>), typeof(GenericRepositoryAsync<>));
+
         }
     }
 }
