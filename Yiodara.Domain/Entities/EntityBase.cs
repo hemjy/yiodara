@@ -8,7 +8,7 @@ namespace Yiodara.Domain.Entities
 {
     public abstract class EntityBase
     {
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
         public string? CreatedBy { get; set; }
         public string? ModifiedBy { get; set; }
         public bool Modified { get; set; }

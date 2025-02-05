@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -18,6 +19,9 @@ namespace Yiodara.Application.Common
 
         [JsonPropertyName("errors")]
         public List<string> Errors { get; set; }
+
+        [JsonPropertyName("validationErrors")]
+        public List<ValidationResult> ValidationErrors { get; set; }
 
         [JsonPropertyName("data")]
         public T Data { get; set; }
@@ -75,6 +79,11 @@ namespace Yiodara.Application.Common
         public static Result<T> Failure(string message, List<string> errors = null)
         {
             return new Result<T>(default(T), false, message) { Errors = errors ?? new List<string>() };
+        }
+
+        public static Result<T> Failure(string message, List<ValidationResult> errors)
+        {
+            return new Result<T>(default(T), false, message) { ValidationErrors = errors ?? new List<ValidationResult>() };
         }
 
         // Static methods for success and failure (paged)
