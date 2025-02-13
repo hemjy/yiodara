@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Yiodara.Infrastructure.Persistence.Contexts;
@@ -11,9 +12,10 @@ using Yiodara.Infrastructure.Persistence.Contexts;
 namespace Yiodara.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250206080825_addedCampaignCategoryEntity")]
+    partial class addedCampaignCategoryEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -154,55 +156,6 @@ namespace Yiodara.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Yiodara.Domain.Entities.Campaign", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<double>("Amount")
-                        .HasColumnType("double precision");
-
-                    b.Property<Guid>("CampaignCategoryId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Currency")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsCompleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime?>("LastModified")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("Modified")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CampaignCategoryId");
-
-                    b.ToTable("Campaigns");
-                });
-
             modelBuilder.Entity("Yiodara.Domain.Entities.CampaignCategory", b =>
                 {
                     b.Property<Guid>("Id")
@@ -228,12 +181,11 @@ namespace Yiodara.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.ToTable("CampaignCategories");
+                    b.ToTable("CampaignCatergories");
                 });
 
             modelBuilder.Entity("Yiodara.Domain.Entities.Partner", b =>
@@ -428,17 +380,6 @@ namespace Yiodara.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Yiodara.Domain.Entities.Campaign", b =>
-                {
-                    b.HasOne("Yiodara.Domain.Entities.CampaignCategory", "CampaignCategory")
-                        .WithMany("Campaigns")
-                        .HasForeignKey("CampaignCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CampaignCategory");
-                });
-
             modelBuilder.Entity("Yiodara.Domain.Entities.RefreshToken", b =>
                 {
                     b.HasOne("Yiodara.Domain.Entities.User", "User")
@@ -448,11 +389,6 @@ namespace Yiodara.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Yiodara.Domain.Entities.CampaignCategory", b =>
-                {
-                    b.Navigation("Campaigns");
                 });
 #pragma warning restore 612, 618
         }

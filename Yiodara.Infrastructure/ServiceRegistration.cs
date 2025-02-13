@@ -134,7 +134,7 @@ namespace Yiodara.Infrastructure
             // register dependency injection
             services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
             services.AddScoped(typeof(IGenericRepositoryAsync<>), typeof(GenericRepositoryAsync<>));
-
+            
         }
     }
 }
