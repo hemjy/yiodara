@@ -10,10 +10,8 @@ namespace Yiodara.Application.Interfaces.Cloudinary
 {
     public interface ICloudinaryService
     {
-        Task<string> UploadImageAsync(IFormFile file);
-        Task<string> UploadImageAsync(string base64Image);
-        Task<ImageUploadResult> GetImageByPublicIdAsync(string publicId);
-        Task<DeletionResult> DeleteImageAsync(string publicId);
-        Task<List<string>> GetAllImagesAsync(string folderPath = "");
+        Task<string> UploadBase64ImageAsync(string base64String);
+        Task<List<string>> UploadMultipleBase64ImagesAsync(List<string> base64Strings);
+        Task DeleteImageAsync(string imageUrl);
     }
 }

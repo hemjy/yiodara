@@ -29,6 +29,11 @@ namespace Yiodara.Application.Features.Campaign.Query
         public string? Currency { get; set; }
         public double Amount { get; set; }
         public bool IsCompleted { get; set; } = false;
+
+        public string? CoverImageBase64 { get; set; }
+
+        public List<string> OtherImagesBase64 { get; set; } = new List<string>();
+
     }
 
     public class CampaignCategoryDto
@@ -80,7 +85,9 @@ namespace Yiodara.Application.Features.Campaign.Query
                     {
                         Id = entity.CampaignCategory.Id,
                         Name = entity.CampaignCategory.Name
-                    }
+                    },
+                    CoverImageBase64 = entity.CoverImage,
+                    OtherImagesBase64 = entity.OtherImages
                 }).ToList();
 
                 return Result<List<GetCampaignsDto>>.Success(

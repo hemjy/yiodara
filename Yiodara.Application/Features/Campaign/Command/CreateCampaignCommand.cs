@@ -2,6 +2,7 @@
 using Serilog;
 using System.ComponentModel.DataAnnotations;
 using Yiodara.Application.Common;
+using Yiodara.Application.Interfaces.Cloudinary;
 using Yiodara.Application.Interfaces.Repositories;
 
 namespace Yiodara.Application.Features.Campaign.Command
@@ -9,7 +10,7 @@ namespace Yiodara.Application.Features.Campaign.Command
     public class CreateCampaignCommand : IRequest<Result<Guid>>
     {
         [Required(ErrorMessage = "Title is required.")]
-        [StringLength(20, ErrorMessage = "Name cannot be longer than 20 characters.")]
+        [StringLength(20, ErrorMessage = "Title cannot be longer than 20 characters.")]
 
         public string? Title { get; set; }
 
@@ -26,19 +27,27 @@ namespace Yiodara.Application.Features.Campaign.Command
         [Required(ErrorMessage = "Amount id is required.")]
         public double Amount { get; set; }
 
+        [Required(ErrorMessage = "Cover image is required.")]
+        public string CoverImageBase64 { get; set; }
+
+        public List<string> OtherImagesBase64 { get; set; } = new List<string>();
+
     }
 
     public class CreateCampaignCommandHandler : IRequestHandler<CreateCampaignCommand, Result<Guid>>
     {
         private readonly ILogger _logger;
         private readonly IGenericRepositoryAsync<Domain.Entities.Campaign> _campaignRepository;
+        private readonly ICloudinaryService _cloudinaryService;
 
         public CreateCampaignCommandHandler(
             ILogger logger,
-            IGenericRepositoryAsync<Domain.Entities.Campaign> campaignRepository)
+            IGenericRepositoryAsync<Domain.Entities.Campaign> campaignRepository,
+            ICloudinaryService cloudinaryService)
         {
             _logger = logger;
             _campaignRepository = campaignRepository;
+            _cloudinaryService = cloudinaryService;
         }
 
         public async Task<Result<Guid>> Handle(CreateCampaignCommand request, CancellationToken cancellationToken)
@@ -68,11 +77,22 @@ namespace Yiodara.Application.Features.Campaign.Command
                     return Result<Guid>.Failure("Campaign Already Exist.");
                 }
 
-                // Create a new campaign 
+                // Upload cover image
+                string coverImageUrl = await _cloudinaryService.UploadBase64ImageAsync(request.CoverImageBase64);
+
+                // Upload other images if any
+                List<string> otherImageUrls = new List<string>();
+                if (request.OtherImagesBase64?.Any() == true)
+                {
+                    otherImageUrls = await _cloudinaryService.UploadMultipleBase64ImagesAsync(request.OtherImagesBase64);
+                }
+
+                  // Create a new campaign 
                 var newCampaign = Domain.Entities.Campaign
-                    .Create(request.Title, request.Description, 
-                    request.CampaignCatergoryId, request.Currency, 
-                    request.Amount); ;
+                    .Create(request.Title, request.Description,
+                    request.CampaignCatergoryId, request.Currency,
+                    request.Amount, coverImageUrl, otherImageUrls);
+
 
                 // Add the new campaign to the repository
                 await _campaignRepository.AddAsync(newCampaign);

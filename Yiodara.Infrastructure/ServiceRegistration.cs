@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using CloudinaryDotNet;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -10,6 +11,7 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Text;
 using Yiodara.Application.Interfaces.Auth;
+using Yiodara.Application.Interfaces.Cloudinary;
 using Yiodara.Application.Interfaces.Repositories;
 using Yiodara.Domain.Entities;
 using Yiodara.Infrastructure.Identity;
@@ -134,7 +136,7 @@ namespace Yiodara.Infrastructure
             // register dependency injection
             services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
             services.AddScoped(typeof(IGenericRepositoryAsync<>), typeof(GenericRepositoryAsync<>));
-            
+            services.AddScoped<ICloudinaryService, Yiodara.Infrastructure.CloudinaryService.CloudinaryService>();
         }
     }
 }
