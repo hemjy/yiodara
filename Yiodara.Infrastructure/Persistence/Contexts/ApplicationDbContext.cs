@@ -24,6 +24,10 @@ namespace Yiodara.Infrastructure.Persistence.Contexts
 
         public DbSet<RefreshToken> RefreshTokens { get; set; }
 
+        public DbSet<CampaignCategory> CampaignCategories { get; set; }
+
+        public DbSet<Campaign> Campaigns { get; set; }
+
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
@@ -47,6 +51,11 @@ namespace Yiodara.Infrastructure.Persistence.Contexts
 
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Campaign>()
+                .HasOne(c => c.CampaignCategory)
+                .WithMany(cc => cc.Campaigns)
+                .HasForeignKey(c => c.CampaignCategoryId);
         }
     }
 }

@@ -12,7 +12,7 @@ namespace Yiodara.Domain.Entities
         public string? CreatedBy { get; set; }
         public string? ModifiedBy { get; set; }
         public bool Modified { get; set; }
-        public DateTime Created { get; set; }
+        public DateTime Created { get; set; } = DateTime.UtcNow;
         public DateTime? LastModified { get; set; }
         public bool IsDeleted { get; set; }
     }
