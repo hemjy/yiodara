@@ -59,6 +59,40 @@ namespace Yiodara.Api.Controllers
         }
 
         //[Authorize(Policy = "AdminOnly")]
+        [HttpGet("get-campaign/{id}")]
+        [ProducesResponseType(typeof(Result<GetCampaignByIdDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Result<GetCampaignByIdDto>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Result<GetCampaignByIdDto>), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetCampaign([FromRoute] Guid id)
+        {
+            try
+            {
+                var command = new GetCampaignByIdQuery { Id = id };
+
+                if (command == null)
+                {
+                    _logger.Warning("Null get campaign query received");
+                    return BadRequest(Result<GetCampaignCategoryDto>.Failure("Invalid get campaign request"));
+                }
+
+                var result = await _mediator.Send(command);
+
+                return result.Succeeded
+                    ? Ok(result)
+                    : BadRequest(result);
+            }
+
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Unexpected error while getting campaign");
+                return StatusCode(500, Result<GetCampaignCategoryDto>.Failure($"An unexpected error occurred: {ex.Message}"));
+            }
+
+        }
+
+
+
+        //[Authorize(Policy = "AdminOnly")]
         [HttpPut("update-campaign")]
         [ProducesResponseType(typeof(Result<UpdateCampaignDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Result<UpdateCampaignDto>), StatusCodes.Status400BadRequest)]
@@ -112,7 +146,38 @@ namespace Yiodara.Api.Controllers
 
             catch (Exception ex)
             {
-                _logger.Error(ex, "Unexpected error while getting campaign");
+                _logger.Error(ex, "Unexpected error while deleting campaign");
+                return StatusCode(500, Result<string>.Failure($"An unexpected error occurred: {ex.Message}"));
+            }
+
+        }
+
+
+        //[Authorize(Policy = "AdminOnly")]
+        [HttpDelete("delete-campaign-image")]
+        [ProducesResponseType(typeof(Result<string>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Result<string>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Result<string>), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> DeleteCampaignImage([FromBody] DeleteCampaignImageCommand command)
+        {
+            try
+            {
+                if (command == null)
+                {
+                    _logger.Warning("Null delete campaign image query received");
+                    return BadRequest(Result<string>.Failure("Invalid delete campaign request"));
+                }
+
+                var result = await _mediator.Send(command);
+
+                return result.Succeeded
+                    ? Ok(result)
+                    : BadRequest(result);
+            }
+
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Unexpected error while deleting campaign image");
                 return StatusCode(500, Result<string>.Failure($"An unexpected error occurred: {ex.Message}"));
             }
 
