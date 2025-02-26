@@ -10,8 +10,8 @@ namespace Yiodara.Infrastructure.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "CampaignImage");
+            //migrationBuilder.DropTable(
+            //    name: "CampaignImage");
 
             migrationBuilder.AddColumn<string>(
                 name: "CoverImage",
