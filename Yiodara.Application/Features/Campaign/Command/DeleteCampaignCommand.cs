@@ -8,7 +8,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Yiodara.Application.Common;
 using Yiodara.Application.Features.CampaignCategory.Command;
+using Yiodara.Application.Interfaces.Cloudinary;
 using Yiodara.Application.Interfaces.Repositories;
+using Yiodara.Domain.Entities;
 
 namespace Yiodara.Application.Features.Campaign.Command
 {
@@ -22,13 +24,16 @@ namespace Yiodara.Application.Features.Campaign.Command
     {
         private readonly ILogger _logger;
         private readonly IGenericRepositoryAsync<Domain.Entities.Campaign> _campaignRepository;
+        private readonly ICloudinaryService _cloudinaryService;
 
         public DeleteCampaignCommandHandler(
             ILogger logger,
-            IGenericRepositoryAsync<Domain.Entities.Campaign> campaignRepository)
+            IGenericRepositoryAsync<Domain.Entities.Campaign> campaignRepository,
+            ICloudinaryService cloudinaryService)
         {
             _logger = logger;
             _campaignRepository = campaignRepository;
+            _cloudinaryService = cloudinaryService;
         }
 
         public async Task<Result<string>> Handle(DeleteCampaignCommand request, CancellationToken cancellationToken)
@@ -53,10 +58,23 @@ namespace Yiodara.Application.Features.Campaign.Command
 
                 if (campaignToBeDeleted == null)
                 {
-                    return Result<string>.Failure("This category does not exist");
+                    return Result<string>.Failure("This campaign does not exist");
                 }
 
+                if (!string.IsNullOrEmpty(campaignToBeDeleted.CoverImage))
+                {
+                    await _cloudinaryService.DeleteImageAsync(campaignToBeDeleted.CoverImage);
+                }
+
+                // Delete all other images from Cloudinary
+                foreach (var imageUrl in campaignToBeDeleted.OtherImages)
+                {
+                    await _cloudinaryService.DeleteImageAsync(imageUrl);
+                }
+
+
                 campaignToBeDeleted.IsDeleted = true;
+                campaignToBeDeleted.LastModified = DateTime.UtcNow;
 
                 await _campaignRepository.UpdateAsync(campaignToBeDeleted, false);
                 await _campaignRepository.SaveChangesAsync();

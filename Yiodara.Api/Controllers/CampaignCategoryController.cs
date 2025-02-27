@@ -49,7 +49,7 @@ namespace Yiodara.Api.Controllers
         }
 
         [Authorize(Policy = "AdminOnly")]
-        [HttpGet("get-campaign/{id}")]
+        [HttpGet("get-campaign-category/{id}")]
         [ProducesResponseType(typeof(Result<GetCampaignCategoryDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Result<GetCampaignCategoryDto>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Result<GetCampaignCategoryDto>), StatusCodes.Status500InternalServerError)]

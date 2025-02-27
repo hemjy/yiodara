@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Yiodara.Application.Features.Campaign.Query
+namespace Yiodara.Application.Common.Enums
 {
-    internal class GetCampaignQuery
+    public enum ImageType
     {
+        Cover,
+        Other
     }
 }
