@@ -22,7 +22,7 @@ namespace Yiodara.Api.Controllers
             _logger = logger;
         }
 
-       // [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOnly")]
         [HttpPost("create-campaign")]
         public async Task<IActionResult> CreateCampaign([FromBody] CreateCampaignCommand command)
         {
@@ -58,7 +58,7 @@ namespace Yiodara.Api.Controllers
                     : BadRequest(response);
         }
 
-        //[Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOnly")]
         [HttpGet("get-campaign/{id}")]
         [ProducesResponseType(typeof(Result<GetCampaignByIdDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Result<GetCampaignByIdDto>), StatusCodes.Status400BadRequest)]
