@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using Stripe;
 using System.Text;
 using Yiodara.Application.Interfaces.Auth;
 using Yiodara.Application.Interfaces.Cloudinary;
@@ -133,10 +134,17 @@ namespace Yiodara.Infrastructure
             // register serilog
             services.AddSingleton(Log.Logger);
 
+            services.AddMemoryCache();
+            services.AddHttpClient();
+
+            // Configure Stripe
+            StripeConfiguration.ApiKey = configuration["Stripe:SecretKey"];
+
             // register dependency injection
             services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
             services.AddScoped(typeof(IGenericRepositoryAsync<>), typeof(GenericRepositoryAsync<>));
             services.AddScoped<ICloudinaryService, Yiodara.Infrastructure.CloudinaryService.CloudinaryService>();
+            services.AddSingleton(configuration);
         }
     }
 }
