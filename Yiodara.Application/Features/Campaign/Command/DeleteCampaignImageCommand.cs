@@ -7,9 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Yiodara.Application.Common;
-using Yiodara.Application.Common.Enums;
 using Yiodara.Application.Interfaces.Cloudinary;
 using Yiodara.Application.Interfaces.Repositories;
+using Yiodara.Domain.Enums;
 
 namespace Yiodara.Application.Features.Campaign.Command
 {

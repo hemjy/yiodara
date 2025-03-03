@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Yiodara.Application.Common.Enums
+namespace Yiodara.Domain.Enums
 {
-    public enum ImageType
+    public enum CompanySize
     {
-        Cover,
-        Other
+        small,
+        medium,
+        large
     }
 }

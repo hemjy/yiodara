@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Yiodara.Infrastructure.Persistence.Contexts;
@@ -12,9 +13,10 @@ using Yiodara.Infrastructure.Persistence.Contexts;
 namespace Yiodara.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250301143247_addedPartnerTable")]
+    partial class addedPartnerTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -308,9 +310,6 @@ namespace Yiodara.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
                     b.Property<int>("SupportProvided")
                         .HasColumnType("integer");
 
@@ -347,10 +346,6 @@ namespace Yiodara.Infrastructure.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
-                    b.Property<string>("Currency")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<DateTime>("Date")
                         .HasColumnType("timestamp with time zone");
 
@@ -385,8 +380,6 @@ namespace Yiodara.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CampaignId");
 
                     b.ToTable("PaymentTransactions");
                 });
@@ -566,17 +559,6 @@ namespace Yiodara.Infrastructure.Migrations
                 });
 
             modelBuilder.Entity("Yiodara.Domain.Entities.Partner", b =>
-                {
-                    b.HasOne("Yiodara.Domain.Entities.Campaign", "Campaign")
-                        .WithMany()
-                        .HasForeignKey("CampaignId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Campaign");
-                });
-
-            modelBuilder.Entity("Yiodara.Domain.Entities.PaymentTransaction", b =>
                 {
                     b.HasOne("Yiodara.Domain.Entities.Campaign", "Campaign")
                         .WithMany()

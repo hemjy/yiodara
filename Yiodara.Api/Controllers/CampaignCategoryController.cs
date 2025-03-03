@@ -21,7 +21,7 @@ namespace Yiodara.Api.Controllers
             _logger = logger;
         }
 
-        [Authorize(Policy = "AdminOnly")]
+        //[Authorize(Policy = "AdminOnly")]
         [HttpPost("create-campaign-category")]
         public async Task<IActionResult> CreateCampaign([FromBody] CreateCampaignCatergoryCommand command)
         {

@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Yiodara.Application.Common.Enums
+namespace Yiodara.Application.Features.Admin.Query
 {
-    public enum ListOrder
+    class GetTopDonorsQuery
     {
-        Name, LastUpdated, DateCreated
     }
 }

@@ -11,6 +11,7 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using Stripe;
 using System.Text;
+using Yiodara.Application.Interfaces;
 using Yiodara.Application.Interfaces.Auth;
 using Yiodara.Application.Interfaces.Cloudinary;
 using Yiodara.Application.Interfaces.Repositories;
@@ -143,7 +144,8 @@ namespace Yiodara.Infrastructure
             // register dependency injection
             services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
             services.AddScoped(typeof(IGenericRepositoryAsync<>), typeof(GenericRepositoryAsync<>));
-            services.AddScoped<ICloudinaryService, Yiodara.Infrastructure.CloudinaryService.CloudinaryService>();
+            services.AddScoped<ICloudinaryService, CloudinaryService.CloudinaryService>();
+            services.AddScoped<ICurrencyCountryMappingService, CurrencyCountryMappingService>();
             services.AddSingleton(configuration);
         }
     }

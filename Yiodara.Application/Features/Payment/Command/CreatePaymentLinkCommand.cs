@@ -144,7 +144,8 @@ namespace Yiodara.Application.Features.Payment.Command
                     ProviderResponse = JsonSerializer.Serialize(session),
                     Date = DateTime.UtcNow,
                     UserId = request.UserId,
-                    CampaignId = request.CampaignId
+                    CampaignId = request.CampaignId,
+                    Currency = request.Currency
                 };
 
                 await _paymentRepository.AddAsync(transaction);

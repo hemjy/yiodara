@@ -16,8 +16,7 @@ namespace Yiodara.Application.Features.Campaign.Query
 {
     public class GetCampaignsQuery : PaginationRequest, IRequest<Result<List<GetCampaignsDto>>>
     {
-
-
+        public string? CategoryName { get; set; }
     }
 
     public class GetCampaignsDto
@@ -63,6 +62,12 @@ namespace Yiodara.Application.Features.Campaign.Query
 
                 query = query.Include(x => x.CampaignCategory)
                        .Where(x => !x.IsDeleted);
+
+                if (!string.IsNullOrWhiteSpace(request.CategoryName))
+                {
+                    query = query.Where(x => x.CampaignCategory.Name != null &&
+                                             x.CampaignCategory.Name.ToLower().Contains(request.CategoryName.ToLower()));
+                }
 
                 var entityResult = await query.ToPaginatedResultAsync(request);
 

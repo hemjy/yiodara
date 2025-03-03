@@ -29,7 +29,7 @@ namespace Yiodara.Application.Features.Auth.Commands
 
     public class LoginUserCommandHandler : IRequestHandler<LoginUserCommand, Result<LoginResponseDto>>
     {
-        private readonly UserManager<User> _userManager;
+        private readonly UserManager<Domain.Entities.User> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
         private readonly ILogger _logger;
@@ -37,7 +37,7 @@ namespace Yiodara.Application.Features.Auth.Commands
         private readonly IGenericRepositoryAsync<RefreshToken> _refreshTokenRepo;
 
         public LoginUserCommandHandler(
-            UserManager<User> userManager,
+            UserManager<Domain.Entities.User> userManager,
             RoleManager<IdentityRole> roleManager,
             IConfiguration configuration,
             ILogger logger,
