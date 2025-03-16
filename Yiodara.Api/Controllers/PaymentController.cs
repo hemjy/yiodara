@@ -1,6 +1,9 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using Yiodara.Application.Common;
+using Yiodara.Application.Features.Partner.Query;
 using Yiodara.Application.Features.Payment.Command;
 
 namespace Yiodara.API.Controllers
@@ -19,7 +22,11 @@ namespace Yiodara.API.Controllers
         /// <summary>
         /// Creates a payment link/checkout session that redirects to Stripe Checkout
         /// </summary>
+        [Authorize]
         [HttpPost("create-payment-link")]
+        [ProducesResponseType(typeof(Result<CreatePaymentLinkResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Result<CreatePaymentLinkResponse>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Result<CreatePaymentLinkResponse>), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CreatePaymentLink([FromBody] CreatePaymentLinkCommand command)
         {
             var result = await _mediator.Send(command);
@@ -35,7 +42,11 @@ namespace Yiodara.API.Controllers
         /// <summary>
         /// Verifies a payment session and updates the transaction status
         /// </summary>
+        [Authorize]
         [HttpGet("verify-payment/{sessionId}")]
+        [ProducesResponseType(typeof(Result<VerifyPaymentResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Result<VerifyPaymentResponse>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Result<VerifyPaymentResponse>), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> VerifyPayment(string sessionId)
         {
             var command = new VerifyPaymentCommand { SessionId = sessionId };
@@ -52,7 +63,11 @@ namespace Yiodara.API.Controllers
         /// <summary>
         /// Handles the success redirect from Stripe Checkout
         /// </summary>
+        [Authorize]
         [HttpGet("payment-success")]
+        [ProducesResponseType(typeof(Result<VerifyPaymentResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Result<VerifyPaymentResponse>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Result<VerifyPaymentResponse>), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> PaymentSuccess([FromQuery] string session_id)
         {
             var command = new VerifyPaymentCommand { SessionId = session_id };

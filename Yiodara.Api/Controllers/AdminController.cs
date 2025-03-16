@@ -1,7 +1,10 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Yiodara.Application.Common;
+using Yiodara.Application.DTOs;
 using Yiodara.Application.Features.Admin.Query;
+using Yiodara.Application.Interfaces.Email;
+using Yiodara.Infrastructure.Email;
 using ILogger = Serilog.ILogger;
 
 
@@ -11,11 +14,13 @@ namespace Yiodara.Api.Controllers
     {
         private readonly IMediator _mediator;
         private readonly ILogger _logger;
+        private readonly IEmailService _emailService;
 
-        public AdminController(IMediator mediator, ILogger logger)
+        public AdminController(IMediator mediator, ILogger logger, IEmailService emailService)
         {
             _mediator = mediator;
             _logger = logger;
+            _emailService = emailService;
         }
 
         [HttpGet("get-campaign-goal-amount-raised/{id}")]
@@ -86,6 +91,7 @@ namespace Yiodara.Api.Controllers
                 }
 
                 var result = await _mediator.Send(query);
+
 
                 return result.Succeeded
                     ? Ok(result)

@@ -29,7 +29,11 @@ namespace Yiodara.Api.Controllers
         /// <summary>
         /// Creates a partner
         /// </summary>
+        [Authorize(Policy = "AdminOnly")]
         [HttpPost("create-partner")]
+        [ProducesResponseType(typeof(Result<Guid>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Result<Guid>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Result<Guid>), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CreatePartner([FromBody] CreatePartnerCommand command)
         {
             try
@@ -54,7 +58,12 @@ namespace Yiodara.Api.Controllers
             }
         }
 
+
+        [Authorize(Policy = "AdminOnly")]
         [HttpGet("get-partners")]
+        [ProducesResponseType(typeof(Result<GetPartnersDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Result<GetPartnersDto>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Result<GetPartnersDto>), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetPartners([FromQuery] GetPartnersQuery query)
         {
             try
@@ -72,7 +81,7 @@ namespace Yiodara.Api.Controllers
            
         }
 
-        //[Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOnly")]
         [HttpGet("get-partner/{id}")]
         [ProducesResponseType(typeof(Result<GetPartnerByIdDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Result<GetPartnerByIdDto>), StatusCodes.Status400BadRequest)]
@@ -109,7 +118,11 @@ namespace Yiodara.Api.Controllers
         /// </summary>
         /// <param name="id">The ID of the partner to confirm</param>
         /// <returns>Result with the partner ID</returns>
+        [Authorize(Policy = "AdminOnly")]
         [HttpPut("{id}/confirm")]
+        [ProducesResponseType(typeof(Result<Guid>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Result<Guid>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Result<Guid>), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> ConfirmPartner(Guid id)
         {
             try

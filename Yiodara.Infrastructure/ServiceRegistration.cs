@@ -1,6 +1,5 @@
-﻿using CloudinaryDotNet;
+﻿using FluentEmail.Smtp;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -10,12 +9,17 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using Stripe;
+using System.Net;
+using System.Net.Mail;
 using System.Text;
 using Yiodara.Application.Interfaces;
 using Yiodara.Application.Interfaces.Auth;
 using Yiodara.Application.Interfaces.Cloudinary;
+using Yiodara.Application.Interfaces.Email;
 using Yiodara.Application.Interfaces.Repositories;
 using Yiodara.Domain.Entities;
+using Yiodara.Infrastructure.Email;
+using Yiodara.Infrastructure.ExtensionMethods;
 using Yiodara.Infrastructure.Identity;
 using Yiodara.Infrastructure.Persistence.Contexts;
 using Yiodara.Infrastructure.Persistence.Repositories;
@@ -138,6 +142,9 @@ namespace Yiodara.Infrastructure
             services.AddMemoryCache();
             services.AddHttpClient();
 
+            // configure email config to get settings from appsettings.
+            services.Configure<EmailConfiguration>(configuration.GetSection("SmtpSettings"));
+
             // Configure Stripe
             StripeConfiguration.ApiKey = configuration["Stripe:SecretKey"];
 
@@ -147,6 +154,8 @@ namespace Yiodara.Infrastructure
             services.AddScoped<ICloudinaryService, CloudinaryService.CloudinaryService>();
             services.AddScoped<ICurrencyCountryMappingService, CurrencyCountryMappingService>();
             services.AddSingleton(configuration);
+            services.AddScoped<IEmailService, EmailService>();
+
         }
     }
 }

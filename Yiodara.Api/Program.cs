@@ -1,5 +1,8 @@
+using FluentEmail.Smtp;
 using Microsoft.AspNetCore.Identity;
 using Serilog;
+using System.Net;
+using System.Net.Mail;
 using Yiodara.Application.Features.Auth.Commands;
 using Yiodara.Domain.Entities;
 using Yiodara.Infrastructure;
@@ -34,7 +37,9 @@ var config = builder.Configuration;
 
 // Add services
 builder.Services.AddInfrastructure(config, Log.Logger);
-    
+
+
+
 var app = builder.Build();
 
 

@@ -24,6 +24,9 @@ namespace Yiodara.Api.Controllers
 
         [Authorize(Policy = "AdminOnly")]
         [HttpPost("create-campaign")]
+        [ProducesResponseType(typeof(Result<Guid>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Result<Guid>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Result<Guid>), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CreateCampaign([FromBody] CreateCampaignCommand command)
         {
             try
@@ -49,7 +52,11 @@ namespace Yiodara.Api.Controllers
 
         }
 
+        [Authorize(Policy = "AdminOnly")]
         [HttpGet("get-all")]
+        [ProducesResponseType(typeof(Result<GetCampaignsDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Result<GetCampaignsDto>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Result<GetCampaignsDto>), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllByFilter([FromQuery] GetCampaignsQuery model, CancellationToken cancellationToken)
         {
             var response = await _mediator.Send(model, cancellationToken);
@@ -92,7 +99,7 @@ namespace Yiodara.Api.Controllers
 
 
 
-        //[Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOnly")]
         [HttpPut("update-campaign")]
         [ProducesResponseType(typeof(Result<UpdateCampaignDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Result<UpdateCampaignDto>), StatusCodes.Status400BadRequest)]
@@ -122,7 +129,7 @@ namespace Yiodara.Api.Controllers
 
         }
 
-        //[Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOnly")]
         [HttpDelete("delete-campaign")]
         [ProducesResponseType(typeof(Result<string>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Result<string>), StatusCodes.Status400BadRequest)]
@@ -153,7 +160,7 @@ namespace Yiodara.Api.Controllers
         }
 
 
-        //[Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOnly")]
         [HttpDelete("delete-campaign-image")]
         [ProducesResponseType(typeof(Result<string>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Result<string>), StatusCodes.Status400BadRequest)]
