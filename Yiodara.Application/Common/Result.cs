@@ -20,7 +20,8 @@ namespace Yiodara.Application.Common
         [JsonPropertyName("errors")]
         public List<string> Errors { get; set; }
 
-        [JsonPropertyName("validationErrors")]
+        // Remove or make JsonIgnore to hide it from serialization
+        [JsonIgnore]
         public List<ValidationResult> ValidationErrors { get; set; }
 
         [JsonPropertyName("data")]
@@ -47,15 +48,20 @@ namespace Yiodara.Application.Common
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public bool? HasNext => (PageSize.HasValue && Total.HasValue) ? PageSize < Total : null;
 
-        public Result() { }
-        // Constructor for regular results (non-paged)
+        public Result()
+        {
+            Errors = new List<string>();
+            ValidationErrors = new List<ValidationResult>();
+        }
 
+        // Constructor for regular results (non-paged)
         public Result(T data, bool succeeded, string message)
         {
             Data = data;
             Succeeded = succeeded;
             Message = message;
             Errors = new List<string>();
+            ValidationErrors = new List<ValidationResult>();
         }
 
         // Constructor for paged results
@@ -68,6 +74,7 @@ namespace Yiodara.Application.Common
             Succeeded = succeeded;
             Message = message;
             Errors = new List<string>();
+            ValidationErrors = new List<ValidationResult>();
         }
 
         // Static methods for success and failure (non-paged)
@@ -81,9 +88,21 @@ namespace Yiodara.Application.Common
             return new Result<T>(default(T), false, message) { Errors = errors ?? new List<string>() };
         }
 
-        public static Result<T> Failure(string message, List<ValidationResult> errors)
+        public static Result<T> Failure(string message, List<ValidationResult> validationErrors)
         {
-            return new Result<T>(default(T), false, message) { ValidationErrors = errors ?? new List<ValidationResult>() };
+            var result = new Result<T>(default(T), false, message);
+            result.ValidationErrors = validationErrors ?? new List<ValidationResult>();
+
+            // Convert validation errors to string errors
+            if (validationErrors != null)
+            {
+                foreach (var error in validationErrors)
+                {
+                    result.Errors.Add(error.ErrorMessage);
+                }
+            }
+
+            return result;
         }
 
         // Static methods for success and failure (paged)
@@ -96,6 +115,23 @@ namespace Yiodara.Application.Common
         public static Result<T> Failure(string message, int pageNumber, int? pageSize = null, int? total = null, List<string> errors = null)
         {
             return new Result<T>(default(T), pageNumber, pageSize ?? 10, total ?? 0, false, message) { Errors = errors ?? new List<string>() };
+        }
+
+        public static Result<T> Failure(string message, int pageNumber, int? pageSize = null, int? total = null, List<ValidationResult> validationErrors = null)
+        {
+            var result = new Result<T>(default(T), pageNumber, pageSize ?? 10, total ?? 0, false, message);
+            result.ValidationErrors = validationErrors ?? new List<ValidationResult>();
+
+            // Convert validation errors to string errors
+            if (validationErrors != null)
+            {
+                foreach (var error in validationErrors)
+                {
+                    result.Errors.Add(error.ErrorMessage);
+                }
+            }
+
+            return result;
         }
     }
 }

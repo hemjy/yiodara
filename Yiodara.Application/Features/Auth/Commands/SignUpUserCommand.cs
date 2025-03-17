@@ -31,14 +31,14 @@ namespace Yiodara.Application.Features.Auth.Commands
 
     public class SignUpCommandHandler : IRequestHandler<SignUpUserCommand, Result<SignUpResponseDto>>
     {
-        private readonly UserManager<User> _userManager;
+        private readonly UserManager<Domain.Entities.User> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
         private readonly ILogger _logger;
         private readonly IJwtTokenGenerator _jwtToken;
 
         public SignUpCommandHandler(
-            UserManager<User> userManager,
+            UserManager<Domain.Entities.User> userManager,
             RoleManager<IdentityRole> roleManager,
             IConfiguration configuration,
             ILogger logger,
@@ -70,7 +70,7 @@ namespace Yiodara.Application.Features.Auth.Commands
                 }
 
                 // Validate password complexity
-                var passwordValidator = new PasswordValidator<User>();
+                var passwordValidator = new PasswordValidator<Domain.Entities.User>();
                 var passwordValidationResult = await passwordValidator.ValidateAsync(_userManager, null, request.Password);
                 if (!passwordValidationResult.Succeeded)
                 {
@@ -89,7 +89,7 @@ namespace Yiodara.Application.Features.Auth.Commands
                     await _roleManager.CreateAsync(new IdentityRole(request.Role));
                 }
 
-                var user = new User
+                var user = new Domain.Entities.User
                 {
                     FullName = request.FullName,
                     UserName = request.Email,
