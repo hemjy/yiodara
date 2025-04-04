@@ -32,7 +32,7 @@ namespace Yiodara.Infrastructure
         {
             services.AddDbContext<ApplicationDbContext>(options =>
                         options.UseNpgsql(configuration["DefaultConnection"] ?? ""));
-
+            Console.WriteLine($"DefaultConnection: {configuration["DefaultConnection"]}");
             services.AddIdentity<User, IdentityRole>(options =>
             {
                 options.Password.RequireDigit = true;
