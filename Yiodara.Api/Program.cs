@@ -38,8 +38,15 @@ var config = builder.Configuration;
 
 // Add services
 builder.Services.AddInfrastructure(config, Log.Logger);
-
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
 
 var app = builder.Build();
 
@@ -68,6 +75,7 @@ app.UseSwaggerUI();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseHealthChecks("/health");
+app.UseCors("AllowAll");
 app.MapControllers();
 
 app.Run();
