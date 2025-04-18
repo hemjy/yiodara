@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Yiodara.Application.Features.Campaign.Query
+namespace Yiodara.Application.Features.Admin.Query
 {
-    internal class GetCampaignQuery
+    class GetTopDonorsQuery
     {
     }
 }

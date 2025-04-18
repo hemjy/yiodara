@@ -28,6 +28,8 @@ namespace Yiodara.Infrastructure.Persistence.Contexts
 
         public DbSet<Campaign> Campaigns { get; set; }
 
+        public DbSet<PaymentTransaction> PaymentTransactions { get; set; }
+
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {

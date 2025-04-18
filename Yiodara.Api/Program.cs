@@ -1,5 +1,8 @@
+using FluentEmail.Smtp;
 using Microsoft.AspNetCore.Identity;
 using Serilog;
+using System.Net;
+using System.Net.Mail;
 using Yiodara.Application.Features.Auth.Commands;
 using Yiodara.Domain.Entities;
 using Yiodara.Infrastructure;
@@ -65,11 +68,10 @@ using (var scope = app.Services.CreateScope())
 // Configure the HTTP request pipeline.
 app.UseSerilogRequestLogging();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseHealthChecks("/health");

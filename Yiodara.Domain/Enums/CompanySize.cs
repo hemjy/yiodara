@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Yiodara.Application.Common.Enums
+namespace Yiodara.Domain.Enums
 {
-    public enum ListOrder
+    public enum CompanySize
     {
-        Name, LastUpdated, DateCreated
+        small,
+        medium,
+        large
     }
 }

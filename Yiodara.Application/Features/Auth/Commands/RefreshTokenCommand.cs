@@ -24,7 +24,7 @@ namespace Yiodara.Application.Features.Auth.Commands
 
     internal class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, Result<RefreshTokenDto>>
     {
-        private readonly UserManager<User> _userManager;
+        private readonly UserManager<Domain.Entities.User> _userManager;
         private readonly IGenericRepositoryAsync<RefreshToken> _refreshTokenRepo;
         private readonly IConfiguration _configuration;
         private readonly IJwtTokenGenerator _jwtTokenGenerator;
@@ -32,7 +32,7 @@ namespace Yiodara.Application.Features.Auth.Commands
 
         // Constructor that accepts dependencies
         public RefreshTokenCommandHandler(
-            UserManager<User> userManager,
+            UserManager<Domain.Entities.User> userManager,
             IConfiguration configuration,
             IJwtTokenGenerator jwtTokenGenerator,
             IGenericRepositoryAsync<RefreshToken> refreshTokenRepo,
