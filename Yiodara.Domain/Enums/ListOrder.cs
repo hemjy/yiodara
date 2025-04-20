@@ -8,6 +8,6 @@ namespace Yiodara.Domain.Enums
 {
     public enum ListOrder
     {
-        Name, LastUpdated, DateCreated, DollarValue
+        Name, LastUpdated, Created, DollarValue, DonationDate
     }
 }

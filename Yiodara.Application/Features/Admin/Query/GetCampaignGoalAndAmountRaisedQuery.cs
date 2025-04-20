@@ -65,7 +65,7 @@ namespace Yiodara.Application.Features.Admin.Query
                 // Query to get the sum of paid payment transactions
                 var query = _paymentTransaction.GetAllQuery();
                 var paidTransactions = await query
-                    .Where(x => x.CampaignId == request.Id && !x.IsDeleted && x.Status.ToLower() == "paid") // Assuming "Paid" is the status for completed payments
+                    .Where(x => x.CampaignId == request.Id && !x.IsDeleted && x.Status.ToLower() == "paid")
                     .ToListAsync(cancellationToken);
 
                 decimal totalAmountRaised = paidTransactions.Sum(x => x.DollarValue);

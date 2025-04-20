@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using System;
@@ -8,14 +9,15 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Yiodara.Application.Common;
+using Yiodara.Application.Helpers;
 using Yiodara.Application.Interfaces.Repositories;
 
 namespace Yiodara.Application.Features.Admin.Query
 {
-    public class GetUserDonationsHistoryQuery : IRequest<Result<UserDonationsDto>>
+    public class GetUserDonationsHistoryQuery : PaginationRequest, IRequest<Result<UserDonationsDto>>
     {
         [Required]
-        public string UserId { get; set; }
+        public string? UserId { get; set; }
     }
 
     public class UserDonationsDto
@@ -52,6 +54,7 @@ namespace Yiodara.Application.Features.Admin.Query
         }
 
         public async Task<Result<UserDonationsDto>> Handle(GetUserDonationsHistoryQuery request, CancellationToken cancellationToken)
+        
         {
             try
             {
@@ -75,35 +78,99 @@ namespace Yiodara.Application.Features.Admin.Query
                     return Result<UserDonationsDto>.Failure("User not found");
                 }
 
-                // Get all donations made by the user
-                var userDonationsQuery = _paymentRepository.GetAllQuery();
-                var userDonations = await userDonationsQuery
+                #region new code to handle pagination
+
+                var allUserDonationsQuery = _paymentRepository.GetAllQuery()
+                   .Where(x => x.UserId == request.UserId && !x.IsDeleted && x.Status.ToLower() == "paid");
+
+                decimal totalDonations = await allUserDonationsQuery.SumAsync(x => x.Amount, cancellationToken);
+
+                // Create a query for donations that can be transformed into DTOs
+                var donationsQuery = _paymentRepository.GetAllQuery()
                     .Include(x => x.Campaign)
                         .ThenInclude(c => c.CampaignCategory)
                     .Where(x => x.UserId == request.UserId && !x.IsDeleted && x.Status.ToLower() == "paid")
-                    .OrderByDescending(x => x.Created)
-                    .ToListAsync(cancellationToken);
-
-                // Calculate total donations
-                decimal totalDonations = userDonations.Sum(x => x.Amount);
-
-                // Prepare the response
-                var result = new UserDonationsDto
-                {
-                    Username = user.UserName,
-                    Email = user.Email,
-                    TotalDonations = totalDonations,
-                    // paginate donations
-                    Donations = userDonations.Select(donation => new DonationDto
+                    .Select(donation => new DonationDto
                     {
                         CampaignName = donation.Campaign.Title,
                         CampaignCategoryName = donation.Campaign.CampaignCategory.Name,
                         Amount = donation.Amount,
                         DonationDate = donation.Created
-                    }).ToList()
+                    });
+
+                // Apply pagination to the donations
+                var entityResult = await donationsQuery.ToPaginatedResultAsync(request);
+
+                if (!entityResult.Succeeded)
+                {
+                    return Result<UserDonationsDto>.Failure(
+                    entityResult.Message,
+                    entityResult.Errors);
+                }
+
+                // Map the paginated data to DTOs
+                var donationsList = entityResult.Data.Select(donation => new DonationDto
+                {
+                    CampaignName = donation.CampaignName,
+                    CampaignCategoryName = donation.CampaignCategoryName,
+                    Amount = donation.Amount,
+                    DonationDate = donation.DonationDate
+                }).ToList();
+
+                // Create the result DTO
+                var userDonationsDto = new UserDonationsDto
+                {
+                    Username = user.UserName,
+                    Email = user.Email,
+                    TotalDonations = totalDonations,
+                    Donations = donationsList
                 };
 
-                return Result<UserDonationsDto>.Success(result);
+                return Result<UserDonationsDto>.Success(
+                userDonationsDto,
+                entityResult.PageNumber ?? 1,
+                entityResult.PageSize ?? 10,
+                entityResult.Total ?? 0,
+                entityResult.Message);
+
+
+                #endregion
+
+                #region former implementation
+
+                //// Get all donations made by the user
+                //var userDonationsQuery = _paymentRepository.GetAllQuery();
+                //var userDonations = await userDonationsQuery
+                //    .Include(x => x.Campaign)
+                //        .ThenInclude(c => c.CampaignCategory)
+                //    .Where(x => x.UserId == request.UserId && !x.IsDeleted && x.Status.ToLower() == "paid")
+                //    .OrderByDescending(x => x.Created)
+                //    .ToListAsync(cancellationToken);
+
+                //// Calculate total donations
+                //decimal totalDonations = userDonations.Sum(x => x.Amount);
+
+
+
+                // Prepare the response
+                //var result = new UserDonationsDto
+                //{
+                //    Username = user.UserName,
+                //    Email = user.Email,
+                //    TotalDonations = totalDonations,
+                //    // paginate donations
+                //    Donations = userDonations.Select(donation => new DonationDto
+                //    {
+                //        CampaignName = donation.Campaign.Title,
+                //        CampaignCategoryName = donation.Campaign.CampaignCategory.Name,
+                //        Amount = donation.Amount,
+                //        DonationDate = donation.Created
+                //    }).ToList()
+                //};
+
+                //return Result<UserDonationsDto>.Success(result);
+
+                #endregion
             }
             catch (Exception ex)
             {

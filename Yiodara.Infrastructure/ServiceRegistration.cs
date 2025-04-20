@@ -30,8 +30,12 @@ namespace Yiodara.Infrastructure
     {
         public static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration, ILogger logger)
         {
+            //services.AddDbContext<ApplicationDbContext>(options =>
+            //            options.UseNpgsql(configuration["DefaultConnection"] ?? ""));
+           
+
             services.AddDbContext<ApplicationDbContext>(options =>
-                        options.UseNpgsql(configuration["DefaultConnection"] ?? ""));
+                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
             services.AddIdentity<User, IdentityRole>(options =>
             {

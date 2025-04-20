@@ -27,6 +27,8 @@ namespace Yiodara.Application.Features.Campaign.Query
         public CampaignCategoryDto? CampaignCategoryDto { get; set; }
         public string? Currency { get; set; }
         public double Amount { get; set; }
+        public double AmountRaised { get; set; }
+        public double AmountLeft { get; set; }
         public bool IsCompleted { get; set; } = false;
 
         public string? CoverImageBase64 { get; set; }
@@ -45,13 +47,16 @@ namespace Yiodara.Application.Features.Campaign.Query
     {
         private readonly ILogger _logger;
         private readonly IGenericRepositoryAsync<Domain.Entities.Campaign> _campaignRepository;
+        private readonly IGenericRepositoryAsync<Domain.Entities.PaymentTransaction> _paymentTransaction;
 
         public GetCampaignsQueryHandler(
             ILogger logger,
-            IGenericRepositoryAsync<Domain.Entities.Campaign> campaignCategoryRepository)
+            IGenericRepositoryAsync<Domain.Entities.Campaign> campaignCategoryRepository,
+            IGenericRepositoryAsync<PaymentTransaction> paymentTransaction)
         {
             _logger = logger;
             _campaignRepository = campaignCategoryRepository;
+            _paymentTransaction = paymentTransaction;
         }
 
         public async Task<Result<List<GetCampaignsDto>>> Handle(GetCampaignsQuery request, CancellationToken cancellationToken)
@@ -65,8 +70,8 @@ namespace Yiodara.Application.Features.Campaign.Query
 
                 if (!string.IsNullOrWhiteSpace(request.CategoryName))
                 {
-                    query = query.Where(x => x.CampaignCategory.Name != null &&
-                                             x.CampaignCategory.Name.ToLower().Contains(request.CategoryName.ToLower()));
+                    query = query.Where(x => x.Title != null &&
+                                             x.Title.ToLower().Contains(request.CategoryName.ToLower()));
                 }
 
                 var entityResult = await query.ToPaginatedResultAsync(request);
@@ -78,22 +83,57 @@ namespace Yiodara.Application.Features.Campaign.Query
                         entityResult.Errors);
                 }
 
-                var dtos = entityResult.Data.Select(entity => new GetCampaignsDto
-                {
-                    Id = entity.Id,
-                    Title = entity.Title,
-                    Description = entity.Description,
-                    Amount = entity.Amount,
-                    Currency = entity.Currency,
-                    IsCompleted = entity.IsCompleted,
-                    CampaignCategoryDto = new CampaignCategoryDto
+                // Get the amount raised for each campaign in one batch
+                var campaignIds = entityResult.Data.Select(c => c.Id).ToList();
+                var paidTransactions = await _paymentTransaction.GetAllQuery()
+                    .Where(x => campaignIds.Contains(x.CampaignId) && !x.IsDeleted && x.Status.ToLower() == "paid")
+                    .ToListAsync(cancellationToken);
+
+                // Group by campaign ID for efficient lookup
+                var transactionsByCampaign = paidTransactions
+                    .GroupBy(x => x.CampaignId)
+                    .ToDictionary(g => g.Key, g => g.Sum(x => x.DollarValue));
+
+                var dtos = entityResult.Data.Select(entity => {
+                    double amountRaised = transactionsByCampaign.TryGetValue(entity.Id, out var raised) ? (double)raised : 0;
+                    double amountLeft = entity.Amount - amountRaised;
+
+                    return new GetCampaignsDto
                     {
-                        Id = entity.CampaignCategory.Id,
-                        Name = entity.CampaignCategory.Name
-                    },
-                    CoverImageBase64 = entity.CoverImage,
-                    OtherImagesBase64 = entity.OtherImages
+                        Id = entity.Id,
+                        Title = entity.Title,
+                        Description = entity.Description,
+                        Amount = entity.Amount,
+                        AmountRaised = amountRaised,
+                        AmountLeft = amountLeft,
+                        Currency = entity.Currency,
+                        IsCompleted = entity.IsCompleted,
+                        CampaignCategoryDto = new CampaignCategoryDto
+                        {
+                            Id = entity.CampaignCategory.Id,
+                            Name = entity.CampaignCategory.Name
+                        },
+                        CoverImageBase64 = entity.CoverImage,
+                        OtherImagesBase64 = entity.OtherImages
+                    };
                 }).ToList();
+
+                //var dtos = entityResult.Data.Select(entity => new GetCampaignsDto
+                //{
+                //    Id = entity.Id,
+                //    Title = entity.Title,
+                //    Description = entity.Description,
+                //    Amount = entity.Amount,
+                //    Currency = entity.Currency,
+                //    IsCompleted = entity.IsCompleted,
+                //    CampaignCategoryDto = new CampaignCategoryDto
+                //    {
+                //        Id = entity.CampaignCategory.Id,
+                //        Name = entity.CampaignCategory.Name
+                //    },
+                //    CoverImageBase64 = entity.CoverImage,
+                //    OtherImagesBase64 = entity.OtherImages
+                //}).ToList();
 
                 return Result<List<GetCampaignsDto>>.Success(
                     dtos,
