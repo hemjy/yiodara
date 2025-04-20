@@ -1,10 +1,10 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Yiodara.Application.Common;
-using Yiodara.Application.DTOs;
 using Yiodara.Application.Features.Admin.Query;
+using Yiodara.Application.Features.Auth.Commands;
 using Yiodara.Application.Interfaces.Email;
-using Yiodara.Infrastructure.Email;
 using ILogger = Serilog.ILogger;
 
 
@@ -51,12 +51,11 @@ namespace Yiodara.Api.Controllers
 
         }
 
-        [HttpGet("get-user-donation-history/{id}")]
-        public async Task<IActionResult> GetUserDonationHistory([FromRoute] string id)
+        [HttpGet("get-user-donation-history")]
+        public async Task<IActionResult> GetUserDonationHistory([FromQuery] GetUserDonationsHistoryQuery query)
         {
             try
             {
-                var query = new GetUserDonationsHistoryQuery { UserId = id };
 
                 if (query == null)
                 {
@@ -79,7 +78,7 @@ namespace Yiodara.Api.Controllers
 
         }
 
-        [HttpGet("get-all-donations")]
+        [HttpGet("get-all-donations-by-users")]
         public async Task<IActionResult> GetAllDonations([FromQuery] GetDonorsQuery query)
         {
             try
@@ -211,6 +210,64 @@ namespace Yiodara.Api.Controllers
 
         }
 
+
+        /// <summary>
+        /// get fund raising statistics for homepage.
+        /// </summary>
+        [AllowAnonymous]
+        [HttpGet("get-fund-raising-statistics")]
+        [ProducesResponseType(typeof(Result<FundraisingStatisticsDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Result<FundraisingStatisticsDto>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Result<FundraisingStatisticsDto>), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetFundraisingStatistics()
+        {
+            try
+            {
+                var query = new GetFundraisingStatisticsQuery();
+                var result = await _mediator.Send(query);
+
+                return result.Succeeded
+                    ? Ok(result)
+                    : BadRequest(result);
+            }
+
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Unexpected error during getting statistics");
+                return StatusCode(500, Result<TotalVolunteersCountDto>.Failure($"An unexpected error occurred: {ex.Message}"));
+            }
+
+        }
+
+        //[Authorize]
+        [HttpGet("get-user-details")]
+        [ProducesResponseType(typeof(Result<UserDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Result<UserDto>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Result<UserDto>), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> SignUp([FromQuery] GetUserQuery request)
+        {
+            try
+            {
+                if (request == null)
+                {
+                    _logger.Warning("Null get user command recieved");
+                    return BadRequest(Result<UserDto>.Failure("Invalid get user request"));
+                }
+
+                var result = await _mediator.Send(request);
+
+                return result.Succeeded
+                    ? Ok(result)
+                    : BadRequest(result);
+            }
+
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Unexpected error while getting user");
+                return StatusCode(500, Result<UserDto>.Failure($"An unexpected error occurred: {ex.Message}"));
+            }
+
+        }
 
     }
 }
