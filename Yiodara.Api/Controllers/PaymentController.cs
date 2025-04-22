@@ -22,7 +22,7 @@ namespace Yiodara.API.Controllers
         /// <summary>
         /// Creates a payment link/checkout session that redirects to Stripe Checkout
         /// </summary>
-        [Authorize]
+        [AllowAnonymous]
         [HttpPost("create-payment-link")]
         [ProducesResponseType(typeof(Result<CreatePaymentLinkResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Result<CreatePaymentLinkResponse>), StatusCodes.Status400BadRequest)]
@@ -42,7 +42,7 @@ namespace Yiodara.API.Controllers
         /// <summary>
         /// Verifies a payment session and updates the transaction status
         /// </summary>
-        [Authorize]
+        [AllowAnonymous]
         [HttpGet("verify-payment/{sessionId}")]
         [ProducesResponseType(typeof(Result<VerifyPaymentResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Result<VerifyPaymentResponse>), StatusCodes.Status400BadRequest)]
@@ -63,7 +63,7 @@ namespace Yiodara.API.Controllers
         /// <summary>
         /// Handles the success redirect from Stripe Checkout
         /// </summary>
-        [Authorize]
+        [AllowAnonymous]
         [HttpGet("payment-success")]
         [ProducesResponseType(typeof(Result<VerifyPaymentResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Result<VerifyPaymentResponse>), StatusCodes.Status400BadRequest)]

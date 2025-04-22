@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,6 +30,8 @@ namespace Yiodara.Infrastructure.Persistence.Contexts
         public DbSet<Campaign> Campaigns { get; set; }
 
         public DbSet<PaymentTransaction> PaymentTransactions { get; set; }
+
+        public DbSet<VolunteerCountry> VolunteerCountries { get; set; }
 
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
@@ -58,6 +61,13 @@ namespace Yiodara.Infrastructure.Persistence.Contexts
                 .HasOne(c => c.CampaignCategory)
                 .WithMany(cc => cc.Campaigns)
                 .HasForeignKey(c => c.CampaignCategoryId);
+
+            modelBuilder.Entity<VolunteerCountry>()
+               .HasOne(c => c.User)
+               .WithOne()  
+               .HasForeignKey<VolunteerCountry>(c => c.UserId)
+               .OnDelete(DeleteBehavior.Cascade);
+
         }
     }
 }

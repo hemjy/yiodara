@@ -53,6 +53,36 @@ namespace Yiodara.Api.Controllers
         }
 
         [AllowAnonymous]
+        [HttpPost("signup-volunteer")]
+        [ProducesResponseType(typeof(Result<SignUpResponseDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Result<SignUpResponseDto>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Result<SignUpResponseDto>), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> SignUpVolunteer([FromBody] SignUpVolunteerCommand command)
+        {
+            try
+            {
+                if (command == null)
+                {
+                    _logger.Warning("Null signup command received");
+                    return BadRequest(Result<SignUpResponseDto>.Failure("Invalid signup request"));
+                }
+
+                var result = await _mediator.Send(command);
+
+                return result.Succeeded
+                    ? Ok(result)
+                    : BadRequest(result);
+            }
+
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Unexpected error during signup");
+                return StatusCode(500, Result<SignUpResponseDto>.Failure($"An unexpected error occurred: {ex.Message}"));
+            }
+
+        }
+
+        [AllowAnonymous]
         [HttpPost("login")]
         [ProducesResponseType(typeof(Result<LoginResponseDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Result<LoginResponseDto>), StatusCodes.Status400BadRequest)]

@@ -92,6 +92,8 @@ namespace Yiodara.Application.Features.Auth.Commands
                 {
                     AccessToken = accessToken,
                     RefreshToken = refreshToken,
+                    UserId = user.Id,
+                    Email = user.Email
                 };
 
                 return Result<LoginResponseDto>.Success(loginResponseDto, "Login successful");
