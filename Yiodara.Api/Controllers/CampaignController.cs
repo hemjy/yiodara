@@ -52,7 +52,7 @@ namespace Yiodara.Api.Controllers
 
         }
 
-        [Authorize(Policy = "AdminOnly")]
+        [AllowAnonymous]
         [HttpGet("get-all")]
         [ProducesResponseType(typeof(Result<GetCampaignsDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Result<GetCampaignsDto>), StatusCodes.Status400BadRequest)]
