@@ -23,9 +23,9 @@ namespace Yiodara.Domain.Entities
         public string PhoneNumber { get; set; }
         public Guid CampaignId { get; set; }
         public SupportProvided SupportProvided { get; set; }
-        public string HowDoesYourOrganizationAimToContribute { get; set; }
-        public string WhatImpactDoYouHopeToAchieve { get; set; }
-        public string AnyOtherComments { get; set; }
+        public string? HowDoesYourOrganizationAimToContribute { get; set; }
+        public string? WhatImpactDoYouHopeToAchieve { get; set; }
+        public string? AnyOtherComments { get; set; }
         public bool AgreeToShareProvidedInfo { get; set; }
         public PartnerStatus Status { get; set; } = PartnerStatus.unconfirmed;
         public virtual Campaign Campaign { get; set; }
