@@ -52,7 +52,7 @@ namespace Yiodara.Api.Controllers
 
         }
 
-        [Authorize(Policy = "AdminOnly")]
+        [AllowAnonymous]
         [HttpGet("get-all")]
         [ProducesResponseType(typeof(Result<GetCampaignsDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Result<GetCampaignsDto>), StatusCodes.Status400BadRequest)]
@@ -65,7 +65,7 @@ namespace Yiodara.Api.Controllers
                     : BadRequest(response);
         }
 
-        [Authorize(Policy = "AdminOnly")]
+        [AllowAnonymous]
         [HttpGet("get-campaign/{id}")]
         [ProducesResponseType(typeof(Result<GetCampaignByIdDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Result<GetCampaignByIdDto>), StatusCodes.Status400BadRequest)]
@@ -96,7 +96,6 @@ namespace Yiodara.Api.Controllers
             }
 
         }
-
 
 
         [Authorize(Policy = "AdminOnly")]
