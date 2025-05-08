@@ -29,7 +29,7 @@ namespace Yiodara.Api.Controllers
         /// <summary>
         /// Creates a partner
         /// </summary>
-     //   [Authorize(Policy = "AdminOnly")]
+        [AllowAnonymous]
         [HttpPost("create-partner")]
         [ProducesResponseType(typeof(Result<Guid>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Result<Guid>), StatusCodes.Status400BadRequest)]
