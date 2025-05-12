@@ -93,11 +93,14 @@ namespace Yiodara.Application.Features.Partner.Command
                     return Result<Guid>.Failure("failed", validationResults);
                 }
 
-                var partnerExists = await _partnerRepository
-                                    .IsUniqueAsync(x => x.EmailAddress.Trim().ToLower() == request.EmailAddress.Trim().ToLower() && !x.IsDeleted);
-                if (partnerExists)
+                // check if company already partners the particular campaign
+
+                var partnerdCampaignAlready = await _partnerRepository
+                    .IsUniqueAsync(x => x.CampaignId == request.CampaignId && x.EmailAddress == request.EmailAddress && !x.IsDeleted);
+
+                if (partnerdCampaignAlready)
                 {
-                    return Result<Guid>.Failure("Partner with this email already exists.");
+                    return Result<Guid>.Failure("This company has already partnered this campaign");
                 }
 
                 // Check if campaign exists
