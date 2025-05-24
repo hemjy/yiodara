@@ -20,6 +20,7 @@ namespace Yiodara.Application.Features.Partner.Query
         public string Industry { get; set; }
         public string SupportType { get; set; }
         public string CampaignCategory { get; set; }
+        public string Email { get; set; }
         public DateTime DateCreated { get; set; }
     }
 
@@ -63,7 +64,8 @@ namespace Yiodara.Application.Features.Partner.Query
                     SupportType = entity.SupportProvided.ToString(),
                     CampaignCategory = entity.Campaign.CampaignCategory.Name,
                     DateCreated = entity.Created,
-                    CampaignName = entity.Campaign.Title ?? string.Empty
+                    CampaignName = entity.Campaign.Title ?? string.Empty,
+                    Email = entity.EmailAddress
                 }).ToList();
 
                 return Result<List<GetPartnersDto>>.Success(

@@ -59,7 +59,7 @@ namespace Yiodara.Api.Controllers
         }
 
 
-        [Authorize(Policy = "AdminOnly")]
+       // [Authorize(Policy = "AdminOnly")]
         [HttpGet("get-partners")]
         [ProducesResponseType(typeof(Result<GetPartnersDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Result<GetPartnersDto>), StatusCodes.Status400BadRequest)]
