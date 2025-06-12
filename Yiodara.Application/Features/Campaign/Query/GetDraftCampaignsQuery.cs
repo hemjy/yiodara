@@ -14,41 +14,42 @@ using Yiodara.Domain.Entities;
 
 namespace Yiodara.Application.Features.Campaign.Query
 {
-    public class GetCampaignsQuery : PaginationRequest, IRequest<Result<List<GetCampaignsDto>>>
+    public class GetDraftCampaignsQuery : PaginationRequest, IRequest<Result<List<GetDraftCampaignsDto>>>
     {
         public string? CategoryName { get; set; }
     }
 
-    public class GetCampaignsDto
+    public class GetDraftCampaignsDto
     {
         public Guid Id { get; set; }
         public string? Title { get; set; }
         public string? Description { get; set; }
-        public CampaignCategoryDto? CampaignCategoryDto { get; set; }
+        public DraftCampaignCategoryDto? CampaignCategoryDto { get; set; }
         public string? Currency { get; set; }
         public double Amount { get; set; }
         public double AmountRaised { get; set; }
         public double AmountLeft { get; set; }
         public bool IsCompleted { get; set; } = false;
-        public bool IsDraft { get; set; }
+
         public string? CoverImageBase64 { get; set; }
+
         public List<string> OtherImagesBase64 { get; set; } = new List<string>();
 
     }
 
-    public class CampaignCategoryDto
+    public class DraftCampaignCategoryDto
     {
         public Guid Id { get; set; }
         public string? Name { get; set; }
     }
 
-    public class GetCampaignsQueryHandler : IRequestHandler<GetCampaignsQuery, Result<List<GetCampaignsDto>>>
+    public class GetDraftCampaignsQueryHandler : IRequestHandler<GetDraftCampaignsQuery, Result<List<GetDraftCampaignsDto>>>
     {
         private readonly ILogger _logger;
         private readonly IGenericRepositoryAsync<Domain.Entities.Campaign> _campaignRepository;
         private readonly IGenericRepositoryAsync<Domain.Entities.PaymentTransaction> _paymentTransaction;
 
-        public GetCampaignsQueryHandler(
+        public GetDraftCampaignsQueryHandler(
             ILogger logger,
             IGenericRepositoryAsync<Domain.Entities.Campaign> campaignCategoryRepository,
             IGenericRepositoryAsync<PaymentTransaction> paymentTransaction)
@@ -58,14 +59,14 @@ namespace Yiodara.Application.Features.Campaign.Query
             _paymentTransaction = paymentTransaction;
         }
 
-        public async Task<Result<List<GetCampaignsDto>>> Handle(GetCampaignsQuery request, CancellationToken cancellationToken)
+        public async Task<Result<List<GetDraftCampaignsDto>>> Handle(GetDraftCampaignsQuery request, CancellationToken cancellationToken)
         {
             try
             {
                 var query = _campaignRepository.GetAllQuery();
 
                 query = query.Include(x => x.CampaignCategory)
-                       .Where(x => !x.IsDeleted && !x.IsDraft);
+                       .Where(x => !x.IsDeleted && x.IsDraft);
 
                 if (!string.IsNullOrWhiteSpace(request.CategoryName))
                 {
@@ -77,7 +78,7 @@ namespace Yiodara.Application.Features.Campaign.Query
 
                 if (!entityResult.Succeeded)
                 {
-                    return Result<List<GetCampaignsDto>>.Failure(
+                    return Result<List<GetDraftCampaignsDto>>.Failure(
                         entityResult.Message,
                         entityResult.Errors);
                 }
@@ -97,7 +98,7 @@ namespace Yiodara.Application.Features.Campaign.Query
                     double amountRaised = transactionsByCampaign.TryGetValue(entity.Id, out var raised) ? (double)raised : 0;
                     double amountLeft = entity.Amount - amountRaised;
 
-                    return new GetCampaignsDto
+                    return new GetDraftCampaignsDto
                     {
                         Id = entity.Id,
                         Title = entity.Title,
@@ -107,35 +108,18 @@ namespace Yiodara.Application.Features.Campaign.Query
                         AmountLeft = amountLeft,
                         Currency = entity.Currency,
                         IsCompleted = entity.IsCompleted,
-                        CampaignCategoryDto = new CampaignCategoryDto
+                        CampaignCategoryDto = new DraftCampaignCategoryDto
                         {
                             Id = entity.CampaignCategory.Id,
                             Name = entity.CampaignCategory.Name
                         },
                         CoverImageBase64 = entity.CoverImage,
-                        OtherImagesBase64 = entity.OtherImages,
-                        IsDraft = entity.IsDraft
+                        OtherImagesBase64 = entity.OtherImages
                     };
                 }).ToList();
 
-                //var dtos = entityResult.Data.Select(entity => new GetCampaignsDto
-                //{
-                //    Id = entity.Id,
-                //    Title = entity.Title,
-                //    Description = entity.Description,
-                //    Amount = entity.Amount,
-                //    Currency = entity.Currency,
-                //    IsCompleted = entity.IsCompleted,
-                //    CampaignCategoryDto = new CampaignCategoryDto
-                //    {
-                //        Id = entity.CampaignCategory.Id,
-                //        Name = entity.CampaignCategory.Name
-                //    },
-                //    CoverImageBase64 = entity.CoverImage,
-                //    OtherImagesBase64 = entity.OtherImages
-                //}).ToList();
-
-                return Result<List<GetCampaignsDto>>.Success(
+                
+                return Result<List<GetDraftCampaignsDto>>.Success(
                     dtos,
                     entityResult.PageNumber ?? 1,
                     entityResult.PageSize ?? 10,
@@ -145,7 +129,7 @@ namespace Yiodara.Application.Features.Campaign.Query
             catch (Exception ex)
             {
                 _logger.Error(ex, "Error during Geting campaign categories");
-                return Result<List<GetCampaignsDto>>.Failure($"An unexpected error occurred: {ex.Message}");
+                return Result<List<GetDraftCampaignsDto>>.Failure($"An unexpected error occurred: {ex.Message}");
             }
         }
     }

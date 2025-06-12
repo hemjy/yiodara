@@ -22,7 +22,8 @@ namespace Yiodara.Api.Controllers
             _logger = logger;
         }
 
-        [Authorize(Policy = "AdminOnly")]
+        //[Authorize(Policy = "AdminOnly")]
+        [AllowAnonymous]
         [HttpPost("create-campaign")]
         [ProducesResponseType(typeof(Result<Guid>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Result<Guid>), StatusCodes.Status400BadRequest)]
@@ -66,6 +67,19 @@ namespace Yiodara.Api.Controllers
         }
 
         [AllowAnonymous]
+        [HttpGet("get-all-draft-campaigns")]
+        [ProducesResponseType(typeof(Result<GetCampaignsDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Result<GetCampaignsDto>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Result<GetCampaignsDto>), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetAllDraftCampaigns([FromQuery] GetDraftCampaignsQuery model, CancellationToken cancellationToken)
+        {
+            var response = await _mediator.Send(model, cancellationToken);
+            return response.Succeeded
+                    ? Ok(response)
+                    : BadRequest(response);
+        }
+
+        [AllowAnonymous]
         [HttpGet("get-campaign/{id}")]
         [ProducesResponseType(typeof(Result<GetCampaignByIdDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Result<GetCampaignByIdDto>), StatusCodes.Status400BadRequest)]
@@ -98,7 +112,8 @@ namespace Yiodara.Api.Controllers
         }
 
 
-        [Authorize(Policy = "AdminOnly")]
+        //[Authorize(Policy = "AdminOnly")]
+        [AllowAnonymous]
         [HttpPut("update-campaign")]
         [ProducesResponseType(typeof(Result<UpdateCampaignDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Result<UpdateCampaignDto>), StatusCodes.Status400BadRequest)]

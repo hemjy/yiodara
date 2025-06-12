@@ -25,9 +25,10 @@ namespace Yiodara.Domain.Entities
         [Column(TypeName = "jsonb")]
         public List<string> OtherImages { get; set; } = new List<string>();
 
+        public bool IsDraft { get; set; }
 
         public static Campaign Create(string title, string description, Guid campaignCategoryId,
-            string currency, double amount, string coverImage,List<string> otherImages)
+            string currency, double amount, string coverImage,List<string> otherImages, bool isDraft)
             => new()
             {
                 Title = title,
@@ -36,7 +37,8 @@ namespace Yiodara.Domain.Entities
                 Currency = currency,
                 Amount = amount,
                 CoverImage = coverImage,
-                OtherImages = otherImages
+                OtherImages = otherImages,
+                IsDraft = isDraft
             };
     }
 }
