@@ -286,8 +286,9 @@ static async Task SeedCampaignsAsync(
                 coverImage: "https://cdn.pixabay.com/photo/2023/01/30/15/36/school-7755985_1280.jpg",
                 otherImages: new List<string> {
                     "https://www.pixelstalk.net/wp-content/uploads/2016/11/Education-Wallpapers-HD.jpg",
-                    "https://www.pixelstalk.net/wp-content/uploads/2016/11/Education-Wallpapers-HD.jpg"
-                }
+                    "https://www.pixelstalk.net/wp-content/uploads/2016/11/Education-Wallpapers-HD.jpg",
+                },
+                isDraft: false
             ),
             
             // Healthcare campaign
@@ -301,7 +302,8 @@ static async Task SeedCampaignsAsync(
                 otherImages: new List<string> {
                     "https://media.istockphoto.com/id/1903424167/photo/medical-team-meeting.jpg?s=1024x1024&w=is&k=20&c=znrbrcmjni7-e7Ysphowp-dp89GiNuj-wKjNq6pwZJk=",
                     "https://img.freepik.com/free-photo/books-stethoscope_1150-18056.jpg?t=st=1744537903~exp=1744541503~hmac=b5e60dbd820373d5e5439ba1fec6e6126cd8a83b9605de3871a87244b95d4384&w=1380"
-                }
+                },
+                isDraft: false
             ),
             
             // Environment campaign
@@ -315,7 +317,8 @@ static async Task SeedCampaignsAsync(
                 otherImages: new List<string> {
                     "https://plus.unsplash.com/premium_photo-1681140560898-bc854a3b8b1c?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
                     "https://images.unsplash.com/photo-1569163139599-0f4517e36f51?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                }
+                },
+                isDraft: true
             )
         };
 

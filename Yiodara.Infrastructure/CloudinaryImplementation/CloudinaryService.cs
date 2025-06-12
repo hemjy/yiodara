@@ -34,9 +34,12 @@ namespace Yiodara.Infrastructure.CloudinaryService
                 if (string.IsNullOrEmpty(base64String))
                     throw new ArgumentException("No image data provided");
 
+                var base64Data = base64String.Contains(",") ? base64String.Split(',')[1] : base64String;
+
                 var uploadParams = new ImageUploadParams
                 {
-                    File = new FileDescription($"campaign_{Guid.NewGuid()}", base64String),
+                    File = new FileDescription($"campaign_{Guid.NewGuid()}.jpg",
+                                              new MemoryStream(Convert.FromBase64String(base64Data))),
                     Folder = "campaigns"
                 };
 
