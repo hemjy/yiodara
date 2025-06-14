@@ -400,8 +400,88 @@ namespace Yiodara.Application.Helpers
             }
         }
 
+        #region changed apply filters on 06-15-2025
+
+        //private static IQueryable<T> ApplyFilters<T>(IQueryable<T> query, PaginationRequest request)
+        //    where T : class
+        //{
+        //    if (!string.IsNullOrWhiteSpace(request.SearchText))
+        //    {
+        //        var searchTerm = request.SearchText.ToLower().Trim();
+        //        var parameter = Expression.Parameter(typeof(T), "x");
+
+        //        // Get all string properties of the entity
+        //        var stringProperties = typeof(T).GetProperties()
+        //            .Where(p => p.PropertyType == typeof(string));
+
+        //        Expression combinedExpression = null;
+
+        //        foreach (var prop in stringProperties)
+        //        {
+        //            var property = Expression.Property(parameter, prop.Name);
+
+        //            // Handle null check
+        //            var nullCheck = Expression.NotEqual(property, Expression.Constant(null));
+
+        //            var toLower = Expression.Call(property,
+        //                typeof(string).GetMethod("ToLower", Type.EmptyTypes));
+
+        //            var value = Expression.Constant(searchTerm);
+
+        //            var contains = Expression.Call(toLower,
+        //                typeof(string).GetMethod("Contains", new[] { typeof(string) }),
+        //                value);
+
+        //            // Combine null check with contains
+        //            var safePropCheck = Expression.AndAlso(nullCheck, contains);
+
+        //            // Combine expressions with OR
+        //            combinedExpression = combinedExpression == null
+        //                ? safePropCheck
+        //                : Expression.OrElse(combinedExpression, safePropCheck);
+        //        }
+
+        //        if (combinedExpression != null)
+        //        {
+        //            var lambda = Expression.Lambda<Func<T, bool>>(combinedExpression, parameter);
+        //            query = query.Where(lambda);
+        //        }
+        //    }
+
+        //    if (request.StartDate.HasValue && request.EndDate.HasValue)
+        //    {
+        //        // Check for multiple possible date property names
+        //        var possibleDateProps = new[] { "CreatedDate", "Created", "DonationDate", "Date", "TransactionDate" };
+        //        PropertyInfo dateProperty = null;
+
+        //        foreach (var propName in possibleDateProps)
+        //        {
+        //            dateProperty = typeof(T).GetProperty(propName);
+        //            if (dateProperty != null && dateProperty.PropertyType == typeof(DateTime))
+        //                break;
+        //        }
+
+        //        if (dateProperty != null)
+        //        {
+        //            var parameter = Expression.Parameter(typeof(T), "x");
+        //            var property = Expression.Property(parameter, dateProperty.Name);
+        //            var startValue = Expression.Constant(request.StartDate.Value);
+        //            var endValue = Expression.Constant(request.EndDate.Value);
+        //            var greaterThanOrEqual = Expression.GreaterThanOrEqual(property, startValue);
+        //            var lessThanOrEqual = Expression.LessThanOrEqual(property, endValue);
+        //            var andAlso = Expression.AndAlso(greaterThanOrEqual, lessThanOrEqual);
+        //            var lambda = Expression.Lambda<Func<T, bool>>(andAlso, parameter);
+        //            query = query.Where(lambda);
+        //        }
+        //    }
+
+        //    return query;
+        //}
+
+        #endregion
+
         private static IQueryable<T> ApplyFilters<T>(IQueryable<T> query, PaginationRequest request)
-            where T : class
+    where T : class
         {
             if (!string.IsNullOrWhiteSpace(request.SearchText))
             {
@@ -455,7 +535,7 @@ namespace Yiodara.Application.Helpers
                 foreach (var propName in possibleDateProps)
                 {
                     dateProperty = typeof(T).GetProperty(propName);
-                    if (dateProperty != null && dateProperty.PropertyType == typeof(DateTime))
+                    if (dateProperty != null && (dateProperty.PropertyType == typeof(DateTime) || dateProperty.PropertyType == typeof(DateTime?)))
                         break;
                 }
 
@@ -463,11 +543,25 @@ namespace Yiodara.Application.Helpers
                 {
                     var parameter = Expression.Parameter(typeof(T), "x");
                     var property = Expression.Property(parameter, dateProperty.Name);
-                    var startValue = Expression.Constant(request.StartDate.Value);
-                    var endValue = Expression.Constant(request.EndDate.Value);
+
+                    // Convert DateTime to UTC and handle date ranges properly
+                    var startDate = request.StartDate.Value.Date; 
+                    var endDate = request.EndDate.Value.Date.AddDays(1); 
+
+                    var startDateUtc = startDate.Kind == DateTimeKind.Utc
+                        ? startDate
+                        : DateTime.SpecifyKind(startDate, DateTimeKind.Utc);
+
+                    var endDateUtc = endDate.Kind == DateTimeKind.Utc
+                        ? endDate
+                        : DateTime.SpecifyKind(endDate, DateTimeKind.Utc);
+
+                    var startValue = Expression.Constant(startDateUtc);
+                    var endValue = Expression.Constant(endDateUtc);
+
                     var greaterThanOrEqual = Expression.GreaterThanOrEqual(property, startValue);
-                    var lessThanOrEqual = Expression.LessThanOrEqual(property, endValue);
-                    var andAlso = Expression.AndAlso(greaterThanOrEqual, lessThanOrEqual);
+                    var lessThan = Expression.LessThan(property, endValue); // Changed to LessThan instead of LessThanOrEqual
+                    var andAlso = Expression.AndAlso(greaterThanOrEqual, lessThan);
                     var lambda = Expression.Lambda<Func<T, bool>>(andAlso, parameter);
                     query = query.Where(lambda);
                 }
