@@ -19,7 +19,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks();
-
+builder.Services.AddHttpContextAccessor();
 
 // register mediator
 builder.Services.AddMediatR(cfg => 

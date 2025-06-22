@@ -202,5 +202,31 @@ namespace Yiodara.Api.Controllers
 
         }
 
+        [Authorize]
+        [HttpPost("changePassword")]
+        [ProducesResponseType(typeof(Result<ChangePasswordResponseDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Result<ChangePasswordResponseDto>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Result<ChangePasswordResponseDto>), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordCommand command)
+        {
+            try
+            {
+                if (command == null)
+                {
+                    _logger.Warning("Null change password command received");
+                    return BadRequest(Result<ChangePasswordResponseDto>.Failure("Invalid change password request"));
+                }
+                var result = await _mediator.Send(command);
+                return result.Succeeded
+                    ? Ok(result)
+                    : BadRequest(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Unexpected error during change password command");
+                return StatusCode(500, Result<ChangePasswordResponseDto>.Failure($"An unexpected error occurred: {ex.Message}"));
+            }
+        }
+
     }
 }
