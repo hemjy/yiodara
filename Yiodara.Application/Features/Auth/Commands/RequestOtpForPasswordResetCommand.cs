@@ -94,7 +94,7 @@ namespace Yiodara.Application.Features.Auth.Commands
 
                 var recieverDetails = new MailReceiverDto()
                 {
-                    Email = "ibrahimjunior67@yahoo.com", // user.Email,
+                    Email = /*"ibrahimjunior67@yahoo.com",*/ user.Email,
                     Name = user.FullName
                 };
 
