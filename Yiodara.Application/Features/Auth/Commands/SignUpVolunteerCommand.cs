@@ -144,7 +144,8 @@ namespace Yiodara.Application.Features.Auth.Commands
                     RefreshTokenExpiry = token.refreshTokenExp,
                     Email = user.Email,
                     Role = request.Role,
-                    UserId = user.Id
+                    UserId = user.Id,
+                    FullName = user.FullName
                 };
 
                 return Result<SignUpResponseDto>.Success(signUpResponseDtoauthDto, "User registered successfully");
