@@ -47,7 +47,7 @@ namespace Yiodara.Api.Controllers
 
             catch (Exception ex)
             {
-                _logger.Error(ex, "Unexpected error while creating campaign category");
+                _logger.Error(ex, "Unexpected error while creating campaign");
                 return StatusCode(500, Result<Guid>.Failure($"An unexpected error occurred: {ex.Message}"));
             }
 

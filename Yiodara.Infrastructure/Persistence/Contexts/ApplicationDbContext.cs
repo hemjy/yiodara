@@ -33,6 +33,8 @@ namespace Yiodara.Infrastructure.Persistence.Contexts
 
         public DbSet<VolunteerCountry> VolunteerCountries { get; set; }
 
+        public DbSet<Event> Events { get; set; }
+
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
