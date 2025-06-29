@@ -11,7 +11,7 @@ namespace Yiodara.Application.Features.Campaign.Command
     public class CreateCampaignCommand : IRequest<Result<Guid>>
     {
         [Required]
-        [StringLength(20, ErrorMessage = "Title cannot be longer than 20 characters.")]
+        [StringLength(100, ErrorMessage = "Title cannot be longer than 100 characters.")]
         public string? Title { get; set; }
 
         public string? Description { get; set; }
