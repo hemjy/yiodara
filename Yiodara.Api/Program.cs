@@ -66,6 +66,7 @@ using (var scope = app.Services.CreateScope())
     await SeedAdminUserAsync(userManager, roleManager);
     var categoryIds = await SeedCampaignCategoriesAsync(dbContext);
     await SeedCampaignsAsync(dbContext, categoryIds.Item1, categoryIds.Item2, categoryIds.Item3);
+    await SeedEventsAsync(dbContext);
     await SeedPaymentTransactionsAsync(dbContext, userManager);
 }
 
@@ -323,6 +324,61 @@ static async Task SeedCampaignsAsync(
         };
 
         await dbContext.Campaigns.AddRangeAsync(campaigns);
+        await dbContext.SaveChangesAsync();
+    }
+}
+
+static async Task SeedEventsAsync(ApplicationDbContext dbContext)
+{
+    // Check if any events exist
+    if (!await dbContext.Events.AnyAsync())
+    {
+        var events = new List<Event>
+        {
+            // Community Cleanup Event
+            Event.Create(
+                title: "Community Cleanup Event",
+                description: "Join us for a day of community service to clean up our local park and make it beautiful for everyone to enjoy. We'll provide all necessary equipment and refreshments.",
+                location: "Central Park, Main Street",
+                eventDate: DateTime.UtcNow.AddDays(7).Date,
+                eventTime: "9:00 AM",
+                coverImageUrl: "https://cdn.pixabay.com/photo/2023/01/30/15/36/school-7755985_1280.jpg",
+                otherImageUrls: new List<string> {
+                    "https://www.pixelstalk.net/wp-content/uploads/2016/11/Education-Wallpapers-HD.jpg",
+                    "https://www.pixelstalk.net/wp-content/uploads/2016/11/Education-Wallpapers-HD.jpg"
+                }
+            ),
+            
+            // Healthcare Seminar
+            Event.Create(
+                title: "Healthcare Technology Seminar",
+                description: "Learn about the latest advancements in healthcare technology and how they're improving patient care. This seminar will feature expert speakers from leading medical institutions.",
+                location: "City Hall Auditorium, Downtown",
+                eventDate: DateTime.UtcNow.AddDays(14).Date,
+                eventTime: "2:00 PM",
+                coverImageUrl: "https://media.istockphoto.com/id/2152985078/photo/senior-couple-medical-appointment.jpg?s=1024x1024&w=is&k=20&c=NwS0_w_n59_J0oA2iZaZ6m1mxsHHJaavC_RgUjS3yOY=",
+                otherImageUrls: new List<string> {
+                    "https://media.istockphoto.com/id/1903424167/photo/medical-team-meeting.jpg?s=1024x1024&w=is&k=20&c=znrbrcmjni7-e7Ysphowp-dp89GiNuj-wKjNq6pwZJk=",
+                    "https://img.freepik.com/free-photo/books-stethoscope_1150-18056.jpg?t=st=1744537903~exp=1744541503~hmac=b5e60dbd820373d5e5439ba1fec6e6126cd8a83b9605de3871a87244b95d4384&w=1380"
+                }
+            ),
+            
+            // Tree Planting Ceremony
+            Event.Create(
+                title: "Tree Planting Ceremony",
+                description: "Celebrate the successful completion of our reforestation project with the planting of the final 10,000 trees. This ceremony marks a significant milestone in our environmental conservation efforts.",
+                location: "Greenwood Forest Reserve",
+                eventDate: DateTime.UtcNow.AddDays(21).Date,
+                eventTime: "10:30 AM",
+                coverImageUrl: "https://media.istockphoto.com/id/1939499353/photo/creating-art-for-a-sustainable-future.jpg?s=1024x1024&w=is&k=20&c=Y9CVeSsD0nY5rowdN2BQUdO1ZbtMv-mKapKkm_KBb_o=",
+                otherImageUrls: new List<string> {
+                    "https://plus.unsplash.com/premium_photo-1681140560898-bc854a3b8b1c?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+                    "https://images.unsplash.com/photo-1569163139599-0f4517e36f51?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                }
+            )
+        };
+
+        await dbContext.Events.AddRangeAsync(events);
         await dbContext.SaveChangesAsync();
     }
 }
