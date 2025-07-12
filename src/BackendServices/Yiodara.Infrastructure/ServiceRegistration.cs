@@ -20,6 +20,7 @@ using Yiodara.Application.Interfaces.Repositories;
 using Yiodara.Domain.Entities;
 using Yiodara.Infrastructure.Email;
 using Yiodara.Infrastructure.ExtensionMethods;
+using Yiodara.Infrastructure.ExternalServices;
 using Yiodara.Infrastructure.Identity;
 using Yiodara.Infrastructure.Persistence.Contexts;
 using Yiodara.Infrastructure.Persistence.Repositories;
@@ -146,6 +147,7 @@ namespace Yiodara.Infrastructure
             services.AddSingleton(Log.Logger);
 
             services.AddMemoryCache();
+            services.AddHttpContextAccessor();
             services.AddHttpClient();
 
             // configure email config to get settings from appsettings.
@@ -155,10 +157,12 @@ namespace Yiodara.Infrastructure
             StripeConfiguration.ApiKey = configuration["Stripe:SecretKey"];
 
             // register dependency injection
+           
             services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
             services.AddScoped(typeof(IGenericRepositoryAsync<>), typeof(GenericRepositoryAsync<>));
             services.AddScoped<ICloudinaryService, CloudinaryService.CloudinaryService>();
             services.AddScoped<ICurrencyCountryMappingService, CurrencyCountryMappingService>();
+            services.AddScoped<IUtilityService, UtilityService>();
             services.AddSingleton(configuration);
             services.AddScoped<IEmailService, EmailService>();
 

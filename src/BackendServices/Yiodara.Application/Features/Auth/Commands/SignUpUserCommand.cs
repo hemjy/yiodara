@@ -5,6 +5,7 @@ using Serilog;
 using System.ComponentModel.DataAnnotations;
 using Yiodara.Application.Common;
 using Yiodara.Application.DTOs;
+using Yiodara.Application.Interfaces;
 using Yiodara.Application.Interfaces.Auth;
 using Yiodara.Domain.Entities;
 
@@ -33,20 +34,20 @@ namespace Yiodara.Application.Features.Auth.Commands
     {
         private readonly UserManager<Domain.Entities.User> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly IConfiguration _configuration;
+        private readonly IUtilityService _utilityService;
         private readonly ILogger _logger;
         private readonly IJwtTokenGenerator _jwtToken;
 
         public SignUpCommandHandler(
             UserManager<Domain.Entities.User> userManager,
             RoleManager<IdentityRole> roleManager,
-            IConfiguration configuration,
+           IUtilityService utilityService,
             ILogger logger,
             IJwtTokenGenerator jwtTokenGenerator)
         {
             _userManager = userManager;
             _roleManager = roleManager;
-            _configuration = configuration;
+            _utilityService = utilityService;
             _logger = logger;
             _jwtToken = jwtTokenGenerator;
         }
@@ -89,11 +90,20 @@ namespace Yiodara.Application.Features.Auth.Commands
                     await _roleManager.CreateAsync(new IdentityRole(request.Role));
                 }
 
+                var locationInfoResponse = await _utilityService.GetGeoInfoByClientIp();
+                if (!locationInfoResponse.Succeeded || !locationInfoResponse.Data.Success) return Result<SignUpResponseDto>.Failure(locationInfoResponse.Message);
+                
                 var user = new Domain.Entities.User
                 {
                     FullName = request.FullName,
                     UserName = request.Email,
-                    Email = request.Email
+                    Email = request.Email,
+                    City = locationInfoResponse.Data.City,
+                    Country = locationInfoResponse.Data.Country,
+                    CurrencySymbol = locationInfoResponse.Data.Currency_symbol,
+                    CountryCode = locationInfoResponse.Data.Country_code,
+                    CountryFlag = locationInfoResponse.Data.Country_flag,
+                    CurrencyCode = locationInfoResponse.Data.Currency_Code,
                 };
 
                 var createResult = await _userManager.CreateAsync(user, request.Password);
