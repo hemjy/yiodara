@@ -94,7 +94,14 @@ namespace Yiodara.Application.Features.Auth.Commands
                     RefreshToken = refreshToken,
                     UserId = user.Id,
                     Email = user.Email,
-                    FullName = user.FullName
+                    FullName = user.FullName,
+                    CountryFlag = user.CountryFlag,
+                    CountryCode = user.CountryCode,
+                    City = user.City,
+                    Country = user.Country,
+                    CurrencyCode = user.CurrencyCode,
+                    CurrencySymbol = user.CurrencySymbol
+                    
                 };
 
                 return Result<LoginResponseDto>.Success(loginResponseDto, "Login successful");

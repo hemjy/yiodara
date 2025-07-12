@@ -19,6 +19,7 @@ namespace Yiodara.Application.Features.Admin.Query
         public decimal TotalDonation { get; set; }
         public decimal LastDonationAmount { get; set; }
         public DateTime LastDonationDate { get; set; }
+        public DateTime FirstDonationDate { get; set; }
     }
 
     public class GetDonorsQueryHandler : IRequestHandler<GetDonorsQuery, Result<List<GetDonorsDto>>>
@@ -86,6 +87,7 @@ namespace Yiodara.Application.Features.Admin.Query
                     {
                         var lastDonation = userDonations.First(); 
                         var totalDonation = userDonations.Sum(x => x.Amount);
+                        var firstDonation = userDonations.Last();
 
                         donorList.Add(new GetDonorsDto
                         {
@@ -94,6 +96,7 @@ namespace Yiodara.Application.Features.Admin.Query
                             TotalDonation = totalDonation,
                             LastDonationAmount = lastDonation.Amount,
                             LastDonationDate = lastDonation.Created,
+                            FirstDonationDate = firstDonation.Created
                         });
                     }
 
