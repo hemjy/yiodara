@@ -96,5 +96,35 @@ namespace Yiodara.Infrastructure.CloudinaryService
                 return null;
             }
         }
+
+        public async Task<string> UploadBase64DocumentAsync(string base64Document)
+        {
+            try
+            {
+                // Generate a unique public ID
+                var publicId = $"documents/doc_{Guid.NewGuid().ToString("N")[..12]}.pdf";
+
+                // Upload raw document (PDF, Word, etc.)
+                var uploadParams = new RawUploadParams()
+                {
+                    File = new FileDescription("document.pdf", base64Document),
+                    PublicId = publicId
+                };
+
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+                if (uploadResult.Error != null)
+                {
+                    throw new Exception($"Cloudinary upload failed: {uploadResult.Error.Message}");
+                }
+
+                return uploadResult.SecureUrl.ToString();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to upload document to Cloudinary: {ex.Message}", ex);
+            }
+        }
     }
 }
+    
