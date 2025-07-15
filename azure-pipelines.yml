@@ -1,0 +1,49 @@
+trigger:
+- main  # or your main branch
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+
+steps:
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '7.x.x'  # or your .NET version
+
+- task: DotNetCoreCLI@2
+  displayName: 'Restore NuGet packages'
+  inputs:
+    command: 'restore'
+    projects: '**/*.csproj'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Build the project'
+  inputs:
+    command: 'build'
+    projects: '**/*.csproj'
+    arguments: '--configuration $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Publish the project'
+  inputs:
+    command: 'publish'
+    publishWebProjects: true
+    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+    zipAfterPublish: false
+
+# Optional: Upload artifact if needed
+# - publish: $(Build.ArtifactStagingDirectory)
+#   artifact: drop
+
+# 🔥 Call Render deploy hook
+- script: |
+    curl --version
+  displayName: 'Check curl version'
+
+- script: |
+    curl -X POST "https://api.render.com/deploy/srv-cuvej9tds78s73ckl19g?key=szLMSIu4NMM"
+  displayName: 'Trigger Render Deploy Hook via curl'
+
