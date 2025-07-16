@@ -1,5 +1,5 @@
 trigger:
-- main  # or your main branch
+  - main  # or your main branch
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -8,17 +8,20 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
+# 🔹 Install .NET SDK
 - task: UseDotNet@2
   inputs:
     packageType: 'sdk'
-    version: '8.0.x'  # or your .NET version
+    version: '8.0.x'  # your .NET version
 
+# 🔹 Restore dependencies
 - task: DotNetCoreCLI@2
   displayName: 'Restore NuGet packages'
   inputs:
     command: 'restore'
     projects: '**/*.csproj'
 
+# 🔹 Build project
 - task: DotNetCoreCLI@2
   displayName: 'Build the project'
   inputs:
@@ -26,24 +29,10 @@ steps:
     projects: '**/*.csproj'
     arguments: '--configuration $(buildConfiguration)'
 
-- task: DotNetCoreCLI@2
-  displayName: 'Publish the project'
-  inputs:
-    command: 'publish'
-    publishWebProjects: true
-    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
-    zipAfterPublish: false
-
-# Optional: Upload artifact if needed
-# - publish: $(Build.ArtifactStagingDirectory)
-#   artifact: drop
-
-# 🔥 Call Render deploy hook
+# 🔹 Push code to GitHub
 - script: |
-    curl --version
-  displayName: 'Check curl version'
-
-- script: |
-    curl -X POST "https://api.render.com/deploy/srv-cuvej9tds78s73ckl19g?key=szLMSIu4NMM"
-  displayName: 'Trigger Render Deploy Hook via curl'
-
+    git config --global user.email "hashimabdulmujib@gmail.com"
+    git config --global user.name "Abdulmujib Hashim"
+    git remote add github https://$(GITHUB_PAT)@github.com/yourusername/your-repo.git
+    git push github main --force
+  displayName: 'Push code to GitHub'
