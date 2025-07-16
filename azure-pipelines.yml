@@ -33,6 +33,13 @@ steps:
     projects: '**/*.csproj'
     arguments: '--configuration $(buildConfiguration)'
 
+- script: |
+    echo "Current branch: $(Build.SourceBranchName)"
+    git branch -a
+    git status
+    git log --oneline
+  displayName: '🔍 Debug Git Repo State'
+
 # 🔹 Push code to GitHub
 - script: |
     git config --global user.email "hashimabdulmujib@gmail.com"
