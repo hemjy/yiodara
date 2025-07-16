@@ -1,12 +1,15 @@
 trigger:
-  - main  # or your main branch
+  branches:
+    include:
+      - main  # or your main branch
 
 pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  buildConfiguration: 'Release'
-- group: MyVariableGroupName
+  - name: buildConfiguration
+    value: 'Release'
+  - group: MyVariableGroupName  # Make sure this variable group exists in your Azure DevOps project
 
 steps:
 # 🔹 Install .NET SDK
