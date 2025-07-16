@@ -33,6 +33,7 @@ steps:
     projects: '**/*.csproj'
     arguments: '--configuration $(buildConfiguration)'
 
+# 🔍 Debug Git repo state (optional but useful)
 - script: |
     echo "Current branch: $(Build.SourceBranchName)"
     git branch -a
@@ -44,6 +45,13 @@ steps:
 - script: |
     git config --global user.email "hashimabdulmujib@gmail.com"
     git config --global user.name "Abdulmujib Hashim"
-    git remote add github https://$(GITHUB_PAT)@github.com/hemjy/yiodara.git
-    git push github $(Build.SourceBranchName):main --force
-  displayName: 'Push code to GitHub'
+    
+    # Create a branch named 'main' from current detached HEAD
+    git checkout -b main
+    
+    # Add GitHub remote if it doesn't exist
+    git remote | grep github || git remote add github https://$(GITHUB_PAT)@github.com/hemjy/yiodara.git
+
+    # Push local 'main' branch to GitHub 'main' branch
+    git push github main --force
+  displayName: '🚀 Push code to GitHub'
