@@ -13,7 +13,7 @@ COPY ["Yiodara.Domain/Yiodara.Domain.csproj", "Yiodara.Domain/"]
 COPY ["Yiodara.Infrastructure/Yiodara.Infrastructure.csproj", "Yiodara.Infrastructure/"]
 RUN dotnet restore "./Yiodara.Api/Yiodara.Api.csproj"
 COPY . .
-WORKDIR "/src/BackendServices/Yiodara.Api"
+WORKDIR "/src/Yiodara.Api"
 RUN dotnet build "./Yiodara.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
