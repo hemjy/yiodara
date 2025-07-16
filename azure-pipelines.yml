@@ -12,6 +12,10 @@ variables:
   - group: MyVariableGroupName  # Make sure this variable group exists in your Azure DevOps project
 
 steps:
+# ✅ Checkout full Git history (critical for pushing to GitHub)
+- checkout: self
+  fetchDepth: 0
+
 # 🔹 Install .NET SDK
 - task: UseDotNet@2
   inputs:
@@ -45,10 +49,10 @@ steps:
 - script: |
     git config --global user.email "hashimabdulmujib@gmail.com"
     git config --global user.name "Abdulmujib Hashim"
-    
-    # Create a branch named 'main' from current detached HEAD
+
+    # Create a local branch named 'main' from current detached HEAD
     git checkout -b main
-    
+
     # Add GitHub remote if it doesn't exist
     git remote | grep github || git remote add github https://$(GITHUB_PAT)@github.com/hemjy/yiodara.git
 
