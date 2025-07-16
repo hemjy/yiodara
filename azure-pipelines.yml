@@ -5,7 +5,8 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  buildConfiguration: 'Release'
+- buildConfiguration: 'Release'
+- group: MyVariableGroupName
 
 steps:
 # 🔹 Install .NET SDK
