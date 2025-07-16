@@ -39,4 +39,4 @@ steps:
     git config --global user.name "Abdulmujib Hashim"
     git remote add github https://$(GITHUB_PAT)@github.com/hemjy/yiodara.git
     git push github main --force
-  displayName: 'Push code to GitHub'
+  displayName: 'Push code to GitHub https://$(GITHUB_PAT)@github.com/hemjy/yiodara.git'
