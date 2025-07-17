@@ -27,6 +27,7 @@ namespace Yiodara.Application.Features.Event.Query
         public string? Location { get; set; }
         public DateTime EventDate { get; set; }
         public string EventTime { get; set; }
+        public int RegisteredVolunteers { get; set; }
         public string? CoverImageUrl { get; set; }
         public List<string> OtherImageUrls { get; set; } = new List<string>();
     }
@@ -82,7 +83,8 @@ namespace Yiodara.Application.Features.Event.Query
                     EventDate = entity.EventDate,
                     EventTime = entity.EventTime,
                     CoverImageUrl = entity.CoverImageUrl,
-                    OtherImageUrls = entity.OtherImageUrls
+                    OtherImageUrls = entity.OtherImageUrls,
+                    RegisteredVolunteers = 0
                 }).ToList();
 
                 return Result<List<GetEventsDto>>.Success(
