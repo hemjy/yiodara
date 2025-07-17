@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Loader2 } from "lucide-react";
 import { ArrowLeft, Download, Printer, CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
+import { format, addDays } from "date-fns";
 import { useDonorHistory } from '../../hooks/useDonorHistory';
 import {
   Table,
@@ -24,6 +24,8 @@ import { Button } from "../ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
 import { Skeleton } from "../ui/skeleton";
+import { DateRange } from 'react-day-picker';
+import { exportToExcel } from '../../utils/fileUtils';
 
 interface Donor {
   id: string;
@@ -45,6 +47,8 @@ const DonorDetailView = ({ donor, onBack }: DonorDetailViewProps) => {
   const [pageSize, setPageSize] = useState(10);
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({ from: undefined, to: undefined });
+  const [isDatePopoverOpen, setIsDatePopoverOpen] = useState(false);
   
   // Use our new hook to fetch donor history
   const { 
@@ -69,21 +73,34 @@ const DonorDetailView = ({ donor, onBack }: DonorDetailViewProps) => {
   
   // Apply date filter
   const applyDateFilter = () => {
-    // The filter is applied automatically through the hook parameters
+    setStartDate(dateRange?.from);
+    setEndDate(dateRange?.to);
     setPageNumber(1); // Reset to first page when filtering
+    setIsDatePopoverOpen(false);
   };
   
   // Clear date filter
   const clearDateFilter = () => {
     setStartDate(undefined);
     setEndDate(undefined);
+    setDateRange({ from: undefined, to: undefined });
     setPageNumber(1); // Reset to first page when clearing filters
+    setIsDatePopoverOpen(false);
   };
   
   // Export to Excel
-  const exportToExcel = () => {
-    // Implementation for exporting to Excel
-    alert('Export to Excel functionality would be implemented here');
+  const handleExportToExcel = () => {
+    if (donations.length > 0) {
+      const dataToExport = donations.map(d => ({
+        'Campaign': d.campaignName,
+        'Category': d.campaignCategoryName,
+        'Donation': d.amount,
+        'Date': new Date(d.donationDate).toLocaleDateString(),
+      }));
+      exportToExcel(dataToExport, `${donor.name}_Donation_History`);
+    } else {
+      alert('No donation history to export.');
+    }
   };
   
   // Print certificate
@@ -160,11 +177,15 @@ const DonorDetailView = ({ donor, onBack }: DonorDetailViewProps) => {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold">Donation History</h2>
           <div className="flex space-x-2">
-            <Popover>
+            <Popover open={isDatePopoverOpen} onOpenChange={setIsDatePopoverOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
                   className="bg-[#FEFAFF] text-[#9F1AB1] border border-[#F6D0FE] px-3 py-2 font-mulish font-medium text-sm rounded flex items-center"
+                  onClick={() => {
+                    setDateRange({ from: startDate, to: endDate });
+                    setIsDatePopoverOpen(true);
+                  }}
                 >
                   Filter by Date
                   <CalendarIcon className="ml-2 h-4 w-4" />
@@ -173,21 +194,12 @@ const DonorDetailView = ({ donor, onBack }: DonorDetailViewProps) => {
               <PopoverContent className="p-4 w-auto" align="end">
                 <div className="space-y-4">
                   <div>
-                    <div className="mb-2 text-sm font-medium">Start Date</div>
                     <Calendar
-                      mode="single"
-                      selected={startDate}
-                      onSelect={setStartDate}
+                      mode="range"
+                      selected={dateRange}
+                      onSelect={setDateRange}
                       initialFocus
-                    />
-                  </div>
-                  <div>
-                    <div className="mb-2 text-sm font-medium">End Date</div>
-                    <Calendar
-                      mode="single"
-                      selected={endDate}
-                      onSelect={setEndDate}
-                      initialFocus
+                      disabled={{ after: new Date() }}
                     />
                   </div>
                   <div className="flex gap-2">
@@ -211,7 +223,7 @@ const DonorDetailView = ({ donor, onBack }: DonorDetailViewProps) => {
             <Button 
               variant="outline" 
               className="bg-[#FEFAFF] text-[#9F1AB1] border border-[#F6D0FE] px-3 py-2 font-mulish font-medium text-sm rounded flex items-center"
-              onClick={exportToExcel}
+              onClick={handleExportToExcel}
             >
               Export to Excel <Download className="ml-2 h-4 w-4" />
             </Button>

@@ -1,10 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import DollarSignIcon from "../assets/Frame 1948757240.svg";
 import Users from "../assets/Frame 1948757242.svg";
 import Cash from "../assets/Frame 1948757243.svg";
 import Donation from "../assets/Frame 1948757241.svg";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import communityimg from "../assets/image (9).png";
 import educationimg from "../assets/image (10).png";
 import medicalimg from "../assets/image (11).png";
@@ -19,15 +18,17 @@ import Germany from "../assets/twemoji_flag-germany.svg";
 
 import EuropeanUnion from "../assets/european-union-seeklogo.png";
 import { useDonations } from '../hooks/useDonations';
-import { useDonorCount, DonorCountResult } from '../hooks/useDonorCount';
+import { useDonorCount } from '../hooks/useDonorCount';
 import { useVolunteerCount } from '../hooks/useVolunteerCount';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDonorsByCountry } from '../hooks/useDonorsByCountry';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { RefreshCw } from 'lucide-react';
-import { useQuery } from "@tanstack/react-query";
 import { campaignService } from "@/api/campaignService";
 import { useNavigate } from "react-router-dom";
+import { Campaign } from "@/types/campaign";
+
+type ActiveTab = "top" | "recent";
 
 type Donation = {
   id: string;
@@ -82,10 +83,12 @@ const getCountryFlag = (countryName: string) => {
 };
 
 const Dashboard = () => {
-  const [activeTab, setActiveTab] = useState("top");
+  const [activeTab, setActiveTab] = useState<ActiveTab>("top");
   const [donationParams, setDonationParams] = useState({
     pageNumber: 1,
-    pageSize: 10,
+    pageSize: 5,
+    orderBy: 1, // Default to top donors
+    descending: true
   });
   const [isRefreshing, setIsRefreshing] = useState(false);
   const queryClient = useQueryClient();
@@ -98,6 +101,14 @@ const Dashboard = () => {
     isError: isErrorDonations,
     error: donationsError
   } = useDonations(donationParams);
+
+  useEffect(() => {
+    if (activeTab === 'top') {
+      setDonationParams(prev => ({ ...prev, orderBy: 1, descending: true }));
+    } else {
+      setDonationParams(prev => ({ ...prev, orderBy: 0, descending: true }));
+    }
+  }, [activeTab]);
 
   // Fetch donor count and statistics
   const {
@@ -206,20 +217,20 @@ const Dashboard = () => {
     error: campaignsError 
   } = useQuery({
     queryKey: ['dashboardCampaigns'],
-    queryFn: () => campaignService.getAllCampaigns({ pageSize: 4 }), // Limit to 4 campaigns for dashboard
+    queryFn: () => campaignService.getAllCampaigns({ pageNumber: 1, pageSize: 4 }), // Limit to 4 campaigns for dashboard
   });
 
   // Process campaigns data
-  const realCampaigns = campaignsData?.data?.map((campaign: any) => {
+  const realCampaigns = campaignsData?.data?.map((campaign: Campaign) => {
   return {
       id: campaign.id,
       title: campaign.title,
       description: campaign.description || "No description available",
       image: campaign.coverImageBase64 || getCategoryImage(campaign.campaignCategoryDto?.name),
       category: campaign.campaignCategoryDto?.name || "Community Service",
-      goal: campaign.amount || 0,
-      raised: campaign.amountRaised || 0,
-      left: campaign.amountLeft,
+      goal: campaign.goalAmount || 0,
+      raised: campaign.totalAmountRaised || 0,
+      left: (campaign.goalAmount || 0) - (campaign.totalAmountRaised || 0),
       status: campaign.isCompleted ? "completed" : "active",
       currency: campaign.currency || "USD"
     };
@@ -553,20 +564,28 @@ const Dashboard = () => {
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="font-bold text-gray-800 text-xs sm:text-sm truncate">{donation.donorName}</p>
-                      <p className="text-[10px] sm:text-xs text-gray-500 mt-1 line-clamp-2">
-                        Last Donation on {new Date(donation.date).toLocaleDateString('en-US', {
-                          day: 'numeric',
-                          month: 'short',
-                          year: 'numeric'
-                        })}, at {new Date(donation.date).toLocaleTimeString('en-US', {
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
-                      </p>
+                      {activeTab === 'top' ? (
+                        <p className="text-[10px] sm:text-xs text-gray-500 mt-1">
+                          Total Donation
+                        </p>
+                      ) : (
+                        <p className="text-[10px] sm:text-xs text-gray-500 mt-1 line-clamp-2">
+                          Last Donation on {new Date(donation.date).toLocaleDateString('en-US', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric'
+                          })}, at {new Date(donation.date).toLocaleTimeString('en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="text-right ml-2 flex-shrink-0">
-                    <p className="font-bold text-gray-400 text-xs sm:text-sm">${donation.amount.toLocaleString()}</p>
+                    <p className="font-bold text-gray-400 text-xs sm:text-sm">
+                      ${(activeTab === 'top' ? donation.totalDonation : donation.amount).toLocaleString()}
+                    </p>
                   </div>
                 </div>
               ))

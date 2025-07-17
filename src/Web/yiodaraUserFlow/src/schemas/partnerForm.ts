@@ -6,8 +6,22 @@ export const partnerFormSchemas = {
       .min(1, 'Company name is required')
       .max(100, 'Company name must be less than 100 characters'),
     websiteUrl: z.string()
-      .url('Please enter a valid URL')
-      .max(255, 'Website URL must be less than 255 characters'),
+      .min(1, 'Website URL is required')
+      .max(255, 'Website URL must be less than 255 characters')
+      .refine((url) => {
+        // Allow URLs with or without protocol
+        const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/i;
+        return urlPattern.test(url);
+      }, {
+        message: 'Please enter a valid website URL (e.g., example.com or https://example.com)'
+      })
+      .transform((url) => {
+        // Add https:// if no protocol is provided
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+          return `https://${url}`;
+        }
+        return url;
+      }),
     industry: z.string()
       .min(1, 'Please select an industry'),
     companySize: z.string()
@@ -20,15 +34,15 @@ export const partnerFormSchemas = {
       .max(100, 'Full name must be less than 100 characters')
       .regex(/^[a-zA-Z\s]*$/, 'Name should only contain letters and spaces'),
     jobTitle: z.string()
-      .max(100, 'Job title must be less than 100 characters')
-      .optional(),
+      .min(1, 'Job title is required')
+      .max(100, 'Job title must be less than 100 characters'),
     email: z.string()
       .email('Please enter a valid email')
       .min(1, 'Email is required')
       .max(100, 'Email must be less than 100 characters'),
     phoneNumber: z.string()
+      .min(1, 'Phone number is required')
       .max(20, 'Phone number must be less than 20 characters')
-      .optional()
   }),
 
   collaboration: z.object({

@@ -1,27 +1,48 @@
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { DateRange } from "react-day-picker";
+
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
-import { useState } from "react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { useEffect, useState } from "react";
 
-interface DatePickerWithRangeProps extends React.HTMLAttributes<HTMLDivElement> {
+interface DatePickerWithRangeProps
+  extends React.HTMLAttributes<HTMLDivElement> {
   onDateChange: (range: DateRange | undefined) => void;
-  dateRange: DateRange | undefined;
+  date: DateRange | undefined;
 }
 
-export function DatePickerWithRange({className, onDateChange, dateRange }: DatePickerWithRangeProps) {
-  const [date, setDate] = useState<DateRange | undefined>(dateRange);
+export function DatePickerWithRange({
+  className,
+  onDateChange,
+  date: propDate,
+}: DatePickerWithRangeProps) {
+  const [date, setDate] = useState<DateRange | undefined>(propDate);
+  const [isOpen, setIsOpen] = useState(false);
 
-  // Handle Apply button click
+  useEffect(() => {
+    setDate(propDate);
+  }, [propDate]);
+
   const handleApply = () => {
     onDateChange(date);
+    setIsOpen(false);
   };
+
+  const handleClear = () => {
+    onDateChange(undefined);
+    setIsOpen(false);
+  };
+
   return (
     <div className={cn("grid gap-2", className)}>
-      <Popover>
+      <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
           <Button
             id="date"
@@ -33,14 +54,14 @@ export function DatePickerWithRange({className, onDateChange, dateRange }: DateP
             )}
           >
             <CalendarIcon className="md:size-4 size-3" />
-            {date?.from ? (
-              date.to ? (
+            {propDate?.from ? (
+              propDate.to ? (
                 <>
-                  {format(date.from, "dd/MM/yyyy")} -{" "}
-                  {format(date.to, "dd/MM/yyyy")}
+                  {format(propDate.from, "dd/MM/yyyy")} -{" "}
+                  {format(propDate.to, "dd/MM/yyyy")}
                 </>
               ) : (
-                format(date.from, "dd/MM/yyyy")
+                format(propDate.from, "dd/MM/yyyy")
               )
             ) : (
               <span>Filter by Date</span>
@@ -51,7 +72,7 @@ export function DatePickerWithRange({className, onDateChange, dateRange }: DateP
           <Calendar
             initialFocus
             mode="range"
-            defaultMonth={new Date()}
+            defaultMonth={date?.from}
             selected={date}
             onSelect={setDate}
             numberOfMonths={1}
@@ -76,14 +97,14 @@ export function DatePickerWithRange({className, onDateChange, dateRange }: DateP
                 readOnly
               />
             </div>
-            
+
             <div className="flex justify-between">
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 className="text-[#9F1AB1] hover:bg-transparent hover:text-[#9F1AB1]/80"
-                onClick={() => setDate(undefined)}
+                onClick={handleClear}
               >
-                Cancel
+                Clear
               </Button>
               <Button
                 className="bg-[#9F1AB1] text-white hover:bg-[#9F1AB1]/90 disabled:bg-gray-300"

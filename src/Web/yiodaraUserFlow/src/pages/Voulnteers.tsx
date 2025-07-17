@@ -39,6 +39,7 @@ function Voulnteers() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(()=>{
     window.scrollTo(0,0)
@@ -160,7 +161,10 @@ function Voulnteers() {
                   <br /> to be a part of our volunteer team at{" "}
                   <span className="text-[#9F1AB1]">Yiodara</span>
                 </h2>
-                <Button className=" bg-[#9F1AB1] w-full hover:bg-[#9F1AB1] text-base">
+                <Button 
+                  className=" bg-[#9F1AB1] w-full hover:bg-[#9F1AB1] text-base"
+                  onClick={() => navigate("/events")}
+                >
                   Join now
                 </Button>
               </div>
@@ -179,7 +183,10 @@ function Voulnteers() {
                       <br /> to be a part of our volunteer team at{" "}
                       <span className="text-[#9F1AB1]">Yiodara</span>
                     </h2>
-                    <Button className=" bg-[#9F1AB1] w-full hover:bg-[#9F1AB1] text-base">
+                    <Button 
+                      className=" bg-[#9F1AB1] w-full hover:bg-[#9F1AB1] text-base"
+                      onClick={() => navigate("/events")}
+                    >
                       Join now
                     </Button>
                   </div>

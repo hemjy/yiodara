@@ -1,6 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createEvent, getTimeOptions } from "@/api/eventService";
+import { createEvent, getTimeOptions, getEvents } from "@/api/eventService";
 import { CreateEventRequest } from "@/types/event";
+
+export const useEvents = (params: { pageNumber: number, pageSize: number, startDate?: string, endDate?: string, categoryId?: string }) => {
+  return useQuery({
+    queryKey: ["events", params],
+    queryFn: () => getEvents(params),
+  });
+};
 
 export const useCreateEvent = () => {
   const queryClient = useQueryClient();

@@ -6,6 +6,8 @@ interface UseEventsOptions {
   autoFetch?: boolean;
   pageSize?: number;
   onError?: (error: string) => void;
+  startDate?: string;
+  endDate?: string;
 }
 
 // Hook return type
@@ -17,16 +19,19 @@ interface UseEventsReturn {
   pageNumber: number;
   totalPages: number;
   setPageNumber: (page: number) => void;
+  setDateRange: (startDate?: string, endDate?: string) => void;
 }
 
 // Custom hook for managing events
 export const useEvents = (options: UseEventsOptions = {}): UseEventsReturn => {
-  const { autoFetch = true, pageSize = 9, onError } = options;
+  const { autoFetch = true, pageSize = 9, onError, startDate: initialStartDate, endDate: initialEndDate } = options;
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(autoFetch);
   const [error, setError] = useState<string | null>(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [startDate, setStartDate] = useState<string | undefined>(initialStartDate);
+  const [endDate, setEndDate] = useState<string | undefined>(initialEndDate);
 
   const fetchEvents = useCallback(async (page: number) => {
     setIsLoading(true);
@@ -36,6 +41,8 @@ export const useEvents = (options: UseEventsOptions = {}): UseEventsReturn => {
       const params: GetEventsParams = {
         pageNumber: page,
         pageSize: pageSize,
+        ...(startDate && { StartDate: startDate }),
+        ...(endDate && { EndDate: endDate }),
       };
       const response = await eventService.getAllEvents(params);
       
@@ -63,17 +70,23 @@ export const useEvents = (options: UseEventsOptions = {}): UseEventsReturn => {
     } finally {
       setIsLoading(false);
     }
-  }, [pageSize, onError]);
+  }, [pageSize, onError, startDate, endDate]);
 
   const handleSetPageNumber = (newPage: number) => {
     fetchEvents(newPage);
   }
 
+  const handleSetDateRange = (newStartDate?: string, newEndDate?: string) => {
+    setStartDate(newStartDate);
+    setEndDate(newEndDate);
+    setPageNumber(1); // Reset to first page when filtering
+  };
+
   useEffect(() => {
     if (autoFetch) {
       fetchEvents(pageNumber);
     }
-  }, [autoFetch, fetchEvents]);
+  }, [autoFetch, fetchEvents, pageNumber, startDate, endDate]);
 
   return {
     events,
@@ -83,5 +96,6 @@ export const useEvents = (options: UseEventsOptions = {}): UseEventsReturn => {
     pageNumber,
     totalPages,
     setPageNumber: handleSetPageNumber,
+    setDateRange: handleSetDateRange,
   };
 }; 

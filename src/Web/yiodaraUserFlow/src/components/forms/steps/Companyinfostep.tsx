@@ -67,7 +67,6 @@ export const CompanyInfoStep = () => {
           {...register("websiteUrl")}
           placeholder="e.g. WHO.com, hp.com, ..."
           className="w-full border-gray-200"
-          type="url"
           aria-invalid={errors.websiteUrl ? "true" : "false"}
         />
         {errors.websiteUrl && (
