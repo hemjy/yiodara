@@ -17,7 +17,7 @@ import {
   TableRow,
 } from "../components/ui/table";
 import { Button } from "../components/ui/button";
-import { ChevronDown, Loader2, CalendarIcon, X } from "lucide-react";
+import { CalendarIcon, X } from "lucide-react";
 import DonorDetailView from "../components/donors/DonorDetailView";
 import { useDonations } from '../hooks/useDonations';
 import { Calendar } from "../components/ui/calendar";
@@ -26,6 +26,9 @@ import { format } from "date-fns";
 import { DonationParams } from '../types/api';
 import { Skeleton } from "../components/ui/skeleton";
 import { useLocation } from "react-router-dom";
+import { DateRange } from "react-day-picker";
+
+type ActiveTab = "all" | "top";
 
 interface Donor {
   id: string;
@@ -40,8 +43,16 @@ interface Donor {
 const Donors = () => {
   const location = useLocation();
   const [selectedDonor, setSelectedDonor] = useState<Donor | null>(null);
+  
+  // Applied filter state
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+
+  // Picker UI state
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [isDatePopoverOpen, setIsDatePopoverOpen] = useState(false);
+
+  const [activeTab, setActiveTab] = useState<ActiveTab>("all");
   
   // Get search param from URL
   const [searchText, setSearchText] = useState("");
@@ -55,6 +66,22 @@ const Donors = () => {
     startDate: undefined,
     endDate: undefined,
   });
+
+  useEffect(() => {
+    switch (activeTab) {
+      case "top":
+        setDonorParams(prev => ({ ...prev, orderBy: 1, descending: true, pageNumber: 1 }));
+        break;
+      case "all":
+      default:
+        setDonorParams(prev => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { orderBy, descending, ...rest } = prev;
+          return { ...rest, pageNumber: 1 };
+        });
+        break;
+    }
+  }, [activeTab]);
   
   // Get search param from URL on initial load
   useEffect(() => {
@@ -82,8 +109,7 @@ const Donors = () => {
     data: donationsData, 
     isLoading, 
     isError, 
-    error,
-    refetch
+    error
   } = useDonations(donorParams);
   
   // Calculate pagination values
@@ -105,30 +131,36 @@ const Donors = () => {
   };
 
   // Apply date filters
-  const applyDateFilters = () => {
-    const newParams = { ...donorParams };
+  const handleApplyDateFilter = () => {
+    const newStartDate = dateRange?.from;
+    const newEndDate = dateRange?.to;
+
+    setStartDate(newStartDate);
+    setEndDate(newEndDate);
     
-    if (startDate) {
-      newParams.startDate = format(startDate, 'yyyy-MM-dd');
-    }
-    
-    if (endDate) {
-      newParams.endDate = format(endDate, 'yyyy-MM-dd');
-    }
-    
-    setDonorParams(newParams);
+    setDonorParams(prev => ({
+      ...prev,
+      pageNumber: 1,
+      startDate: newStartDate ? format(newStartDate, 'yyyy-MM-dd') : undefined,
+      endDate: newEndDate ? format(newEndDate, 'yyyy-MM-dd') : undefined,
+    }));
+
+    setIsDatePopoverOpen(false);
   };
   
   // Clear date filters
-  const clearDateFilters = () => {
+  const handleClearDateFilter = () => {
     setStartDate(undefined);
     setEndDate(undefined);
+    setDateRange(undefined);
     
-    const newParams = { ...donorParams };
-    delete newParams.startDate;
-    delete newParams.endDate;
-    
-    setDonorParams(newParams);
+    setDonorParams(prev => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { startDate, endDate, ...rest } = prev;
+      return { ...rest, pageNumber: 1 };
+    });
+
+    setIsDatePopoverOpen(false);
   };
 
   // Clear search function
@@ -151,11 +183,6 @@ const Donors = () => {
     const newParams = { ...donorParams };
     delete newParams.searchText;
     setDonorParams(newParams);
-  };
-
-  // Format helper functions
-  const getCurrencySymbol = (currency: string) => {
-    return '$'; // Default to USD for now
   };
 
   // Transform API data to match your donor format
@@ -215,82 +242,71 @@ const Donors = () => {
           </span>
         </h1>
         
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="flex flex-wrap items-center gap-2 mr-0 md:mr-4">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="bg-[#FEFAFF] text-[#9F1AB1] border border-[#F6D0FE] px-3 py-2 font-mulish font-medium text-sm rounded flex items-center h-9 w-[130px]"
-                >
-                  {startDate ? format(startDate, "MMM dd, yyyy") : "Start Date"}
-                  <CalendarIcon className="ml-auto h-4 w-4" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={startDate}
-                  onSelect={setStartDate}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
-            
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="bg-[#FEFAFF] text-[#9F1AB1] border border-[#F6D0FE] px-3 py-2 font-mulish font-medium text-sm rounded flex items-center h-9 w-[130px]"
-                >
-                  {endDate ? format(endDate, "MMM dd, yyyy") : "End Date"}
-                  <CalendarIcon className="ml-auto h-4 w-4" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={endDate}
-                  onSelect={setEndDate}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
-            
-            <Button 
-              variant="outline"
-              className="bg-[#FEFAFF] text-[#9F1AB1] border border-[#F6D0FE] px-3 py-2 font-mulish font-medium text-sm rounded h-9"
-              onClick={applyDateFilters}
-              disabled={!startDate && !endDate}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <div className="bg-gray-50 rounded-lg p-1 flex">
+            <button
+              className={`py-2 px-4 rounded-lg font-medium text-sm flex-1 transition-colors ${
+                activeTab === 'all' 
+                  ? "bg-white text-[#BA24D5] shadow-sm" 
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+              onClick={() => setActiveTab('all')}
             >
-              Apply
-            </Button>
-            
-            <Button 
-              variant="outline"
-              className="bg-white text-gray-600 border border-gray-300 px-3 py-2 font-mulish font-medium text-sm rounded h-9"
-              onClick={clearDateFilters}
-              disabled={!startDate && !endDate}
+              All Donors
+            </button>
+            <button
+              className={`py-2 px-4 rounded-lg font-medium text-sm flex-1 transition-colors ${
+                activeTab === 'top' 
+                  ? "bg-white text-[#BA24D5] shadow-sm" 
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+              onClick={() => setActiveTab('top')}
             >
-              Clear
-            </Button>
+              Top Donors
+            </button>
           </div>
-          
-          {/* Existing filter buttons */}
-          {/* <Button 
-            variant="outline" 
-            className="bg-[#FEFAFF] text-[#9F1AB1] border border-[#F6D0FE] px-3 py-2 font-mulish font-medium text-sm rounded mr-2 flex items-center"
-            onClick={() => setDonorParams(prev => ({ ...prev, orderBy: 0, descending: true }))}
-          >
-            All Donors <ChevronDown className="h-4 w-4 ml-1" />
-          </Button>
-          <Button 
-            variant="outline"
-            className="bg-[#FEFAFF] text-[#9F1AB1] border border-[#F6D0FE] px-3 py-2 font-mulish font-medium text-sm rounded flex items-center"
-            onClick={() => setDonorParams(prev => ({ ...prev, orderBy: 1, descending: true }))}
-          >
-            Top Donors <ChevronDown className="h-4 w-4 ml-1" />
-          </Button> */}
+
+          <div className="flex flex-wrap items-center gap-2">
+            <Popover open={isDatePopoverOpen} onOpenChange={setIsDatePopoverOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="bg-[#FEFAFF] text-[#9F1AB1] border border-[#F6D0FE] px-3 py-2 font-mulish font-medium text-sm rounded flex items-center h-9"
+                   onClick={() => {
+                    setDateRange({ from: startDate, to: endDate });
+                    setIsDatePopoverOpen(true);
+                  }}
+                >
+                  Filter by Date
+                  <CalendarIcon className="ml-auto h-4 w-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="range"
+                  selected={dateRange}
+                  onSelect={setDateRange}
+                  initialFocus
+                  disabled={{ after: new Date() }}
+                />
+                <div className="flex justify-end gap-2 p-4 border-t">
+                   <Button 
+                    variant="ghost" 
+                    onClick={handleClearDateFilter}
+                    disabled={!dateRange?.from && !dateRange?.to}
+                  >
+                    Clear
+                  </Button>
+                  <Button 
+                    onClick={handleApplyDateFilter}
+                    disabled={!dateRange?.from}
+                  >
+                    Apply
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
       </div>
       
@@ -395,7 +411,7 @@ const Donors = () => {
                       href="#" 
                       onClick={(e) => {
                         e.preventDefault();
-                        if (currentPage > 1) handlePageChange(currentPage - 1);
+                        if (currentPage && currentPage > 1) handlePageChange(currentPage - 1);
                       }}
                       className={!hasPrevious ? "pointer-events-none opacity-50" : ""}
                     />
@@ -406,7 +422,7 @@ const Donors = () => {
                     if (
                       page === 1 ||
                       page === totalPages ||
-                      (page >= currentPage - 1 && page <= currentPage + 1)
+                      (currentPage && page >= currentPage - 1 && page <= currentPage + 1)
                     ) {
                       return (
                         <PaginationItem key={page}>
@@ -426,8 +442,8 @@ const Donors = () => {
                     
                     // Show ellipsis for skipped pages
                     if (
-                      (page === 2 && currentPage > 3) ||
-                      (page === totalPages - 1 && currentPage < totalPages - 2)
+                      (currentPage && page === 2 && currentPage > 3) ||
+                      (currentPage && page === totalPages - 1 && currentPage < totalPages - 2)
                     ) {
                       return (
                         <PaginationItem key={page}>
@@ -444,7 +460,7 @@ const Donors = () => {
                       href="#" 
                       onClick={(e) => {
                         e.preventDefault();
-                        if (currentPage < totalPages) handlePageChange(currentPage + 1);
+                        if (currentPage && currentPage < totalPages) handlePageChange(currentPage + 1);
                       }}
                       className={!hasNext ? "pointer-events-none opacity-50" : ""}
                     />
