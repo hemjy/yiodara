@@ -47,12 +47,6 @@ export const CollaborationStep = () => {
     trigger,
   } = useFormContext();
 
-  const [wordCounts, setWordCounts] = useState({
-    contribution: 0,
-    impact: 0,
-    comments: 0,
-  });
-  
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -92,10 +86,7 @@ export const CollaborationStep = () => {
     await trigger("supportTypes");
   };
 
-  const updateWordCount = (field: keyof typeof wordCounts, text: string) => {
-    const words = text.trim().split(/\s+/).length;
-    setWordCounts((prev) => ({ ...prev, [field]: words }));
-  };
+
 
   return (
     <div className="max-h-[60vh] overflow-y-auto pr-4 space-y-6 scrollbar-thin scrollbar-thumb-purple-200 scrollbar-track-transparent font-mulish">
@@ -190,9 +181,6 @@ export const CollaborationStep = () => {
           placeholder="Please describe how your organization plans to support our campaign..."
           maxLength={500}
         />
-        <div className="flex justify-end text-xs text-gray-500">
-          {wordCounts.contribution} / 500 characters
-        </div>
         {errors.contribution && (
           <p className="text-sm text-red-500">
             {errors.contribution.message as string}
@@ -210,9 +198,6 @@ export const CollaborationStep = () => {
           placeholder="Please describe the impact you hope to make through this partnership..."
           maxLength={500}
         />
-        <div className="flex justify-end text-xs text-gray-500">
-          {wordCounts.impact} / 500 characters
-        </div>
         {errors.impact && (
           <p className="text-sm text-red-500">
             {errors.impact.message as string}
@@ -222,22 +207,13 @@ export const CollaborationStep = () => {
 
       <div className="space-y-2">
         <label className="block  text-base text-[#182230] font-bold">
-          Additional Comments (Optional, max 500 words)
+          Additional Comments (Optional)
         </label>
-        <div className="relative">
-          <Textarea
-            {...register("comments")}
-            placeholder="Any additional information you'd like to share..."
-            className="min-h-[100px] pr-16"
-            onChange={(e) => {
-              updateWordCount("comments", e.target.value);
-              register("comments").onChange(e);
-            }}
-          />
-          <div className="absolute bottom-2 right-2 text-xs text-gray-500">
-            {wordCounts.comments} words
-          </div>
-        </div>
+        <Textarea
+          {...register("comments")}
+          placeholder="Any additional information you'd like to share..."
+          className="min-h-[100px]"
+        />
         {errors.comments && (
           <p className="text-sm text-red-500">
             {errors.comments.message as string}

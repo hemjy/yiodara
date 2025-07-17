@@ -98,7 +98,9 @@ const PartnerWithUs = () => {
     } else if (currentStep === 2) {
       return (
         !!currentValues.fullName &&
+        !!currentValues.jobTitle &&
         !!currentValues.email &&
+        !!currentValues.phoneNumber &&
         Object.keys(errors).length === 0
       );
     } else if (currentStep === 3) {
@@ -137,7 +139,9 @@ const PartnerWithUs = () => {
         'industry', 
         'companySize', 
         'fullName', 
+        'jobTitle',
         'email', 
+        'phoneNumber',
         'campaign', 
         'supportTypes', 
         'agreement'
