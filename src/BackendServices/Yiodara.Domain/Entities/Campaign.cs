@@ -21,6 +21,8 @@ namespace Yiodara.Domain.Entities
         public virtual CampaignCategory CampaignCategory { get; set; }
 
         public string? CoverImage { get; set; }
+        public string? CompanyProfile { get; set; }
+        public string? OrganizationName { get; set; }
 
         [Column(TypeName = "jsonb")]
         public List<string> OtherImages { get; set; } = new List<string>();
@@ -28,7 +30,8 @@ namespace Yiodara.Domain.Entities
         public bool IsDraft { get; set; }
 
         public static Campaign Create(string title, string description, Guid campaignCategoryId,
-            string currency, double amount, string coverImage,List<string> otherImages, bool isDraft)
+            string currency, double amount, string coverImage,List<string> otherImages, bool isDraft,
+            string companyProfile, string organizationName)
             => new()
             {
                 Title = title,
@@ -38,7 +41,9 @@ namespace Yiodara.Domain.Entities
                 Amount = amount,
                 CoverImage = coverImage,
                 OtherImages = otherImages,
-                IsDraft = isDraft
+                IsDraft = isDraft,
+                CompanyProfile = companyProfile,
+                OrganizationName = organizationName
             };
     }
 }

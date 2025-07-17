@@ -1,13 +1,7 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Yiodara.Application.Common;
-using Yiodara.Application.Features.CampaignCategory.Query;
 using Yiodara.Application.Helpers;
 using Yiodara.Application.Interfaces.Repositories;
 using Yiodara.Domain.Entities;
@@ -22,6 +16,8 @@ namespace Yiodara.Application.Features.Campaign.Query
     public class GetDraftCampaignsDto
     {
         public Guid Id { get; set; }
+        public string? OrganizationName { get; set; }
+        public string? CompanyProfile { get; set; }
         public string? Title { get; set; }
         public string? Description { get; set; }
         public DraftCampaignCategoryDto? CampaignCategoryDto { get; set; }
@@ -30,11 +26,8 @@ namespace Yiodara.Application.Features.Campaign.Query
         public double AmountRaised { get; set; }
         public double AmountLeft { get; set; }
         public bool IsCompleted { get; set; } = false;
-
         public string? CoverImageBase64 { get; set; }
-
         public List<string> OtherImagesBase64 { get; set; } = new List<string>();
-
     }
 
     public class DraftCampaignCategoryDto
@@ -101,6 +94,8 @@ namespace Yiodara.Application.Features.Campaign.Query
                     return new GetDraftCampaignsDto
                     {
                         Id = entity.Id,
+                        OrganizationName = entity.OrganizationName,
+                        CompanyProfile = entity.CompanyProfile,
                         Title = entity.Title,
                         Description = entity.Description,
                         Amount = entity.Amount,

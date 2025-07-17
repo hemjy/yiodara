@@ -11,6 +11,11 @@ namespace Yiodara.Application.Features.Campaign.Command
     public class CreateCampaignCommand : IRequest<Result<Guid>>
     {
         [Required]
+        public string? OrganizationName { get; set; }
+
+        public string? CompanyProfile { get; set; }
+
+        [Required]
         [StringLength(100, ErrorMessage = "Title cannot be longer than 100 characters.")]
         public string? Title { get; set; }
 
@@ -51,6 +56,7 @@ namespace Yiodara.Application.Features.Campaign.Command
                 _logger.Information("Handling creating campaign handler");
 
                 var validationResults = new List<ValidationResult>();
+
                 if (request.IsDraft)
                 {
                     // Only validate Title
@@ -73,6 +79,8 @@ namespace Yiodara.Application.Features.Campaign.Command
 
                     if (string.IsNullOrWhiteSpace(request.CoverImageBase64))
                         validationResults.Add(new ValidationResult("Cover image is required.", new[] { nameof(request.CoverImageBase64) }));
+
+                    ValidationHelper.ValidateBase64Document(request.CompanyProfile, nameof(request.CoverImageBase64), validationResults);
                 }
 
                 if (validationResults.Any())
@@ -108,11 +116,28 @@ namespace Yiodara.Application.Features.Campaign.Command
                     }
                 }
 
-                  // Create a new campaign 
+                string? documentUrl = null;
+
+                if (request.CompanyProfile.IsNotEmpty())
+                {
+                    try
+                    {
+                        _logger.Information("Uploading company profile...");
+                        documentUrl = await _cloudinaryService.UploadBase64DocumentAsync(request.CompanyProfile);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error(ex, "Failed to upload supporting document.");
+                        return Result<Guid>.Failure("Failed to upload supporting document. Please ensure the file is a valid base64-encoded document and less than 10MB.");
+                    }
+                }
+
+                // Create a new campaign 
                 var newCampaign = Domain.Entities.Campaign
                     .Create(request.Title, request.Description,
                     request.CampaignCatergoryId, request.Currency,
-                    request.Amount, coverImageUrl, otherImageUrls, request.IsDraft);
+                    request.Amount, coverImageUrl, otherImageUrls, request.IsDraft,
+                    documentUrl, request.OrganizationName);
 
 
                 // Add the new campaign to the repository
