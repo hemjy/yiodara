@@ -6,6 +6,8 @@ import { VolunteerModal } from "@/components/events/VolunteerModal";
 import { VolunteerAuthModal } from "@/components/events/VolunteerAuthModal";
 import { useAuth } from "@/hooks/useAuth";
 import { EventCardSkeleton } from "@/components/events/EventCardSkeleton";
+import { DatePickerWithRange } from "@/pages/user/DatePickerWithRange";
+import { DateRange } from "react-day-picker";
 import {
   Pagination,
   PaginationContent,
@@ -18,7 +20,9 @@ import {
 
 const EventsPage = () => {
   const eventsPerPage = 9;
-  const { events, isLoading, error, pageNumber, totalPages, setPageNumber } =
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  
+  const { events, isLoading, error, pageNumber, totalPages, setPageNumber, setDateRange: setEventsDateRange } =
     useEvents({ pageSize: eventsPerPage });
 
   const [isVolunteerModalOpen, setIsVolunteerModalOpen] = useState(false);
@@ -29,6 +33,22 @@ const EventsPage = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  const handleDateRangeChange = (newDateRange: DateRange | undefined) => {
+    setDateRange(newDateRange);
+    
+    let startDate: string | undefined;
+    let endDate: string | undefined;
+    
+    if (newDateRange?.from) {
+      startDate = newDateRange.from.toISOString();
+    }
+    if (newDateRange?.to) {
+      endDate = newDateRange.to.toISOString();
+    }
+    
+    setEventsDateRange(startDate, endDate);
+  };
 
   const handleVolunteerClick = (event: Event) => {
     setSelectedEvent(event);
@@ -67,6 +87,14 @@ const EventsPage = () => {
             </p>
           </div>
 
+          {/* Date Filter */}
+          <div className="mb-8 flex justify-center">
+            <DatePickerWithRange
+              date={dateRange}
+              onDateChange={handleDateRangeChange}
+            />
+          </div>
+
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {Array.from({ length: 6 }).map((_, index) => (
@@ -77,6 +105,13 @@ const EventsPage = () => {
             <div className="text-center text-red-500 text-lg">
               <p>Failed to load events. Please try again later.</p>
               <p className="text-sm mt-2">{error}</p>
+            </div>
+          ) : events.length === 0 ? (
+            <div className=" font-mulish border text-center py-10">
+              <h3 className="text-2xl font-bold">No Events Found</h3>
+              <p className="text-gray-500 mt-2">
+                There are no events matching your selected date range.
+              </p>
             </div>
           ) : (
             <>
