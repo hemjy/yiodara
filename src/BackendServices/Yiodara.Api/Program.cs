@@ -291,7 +291,8 @@ static async Task SeedCampaignsAsync(
                 },
                 isDraft: false,
                 companyProfile: "https://example.com/company-profile.pdf",
-                organizationName: "Global Education Initiative"
+                organizationName: "Global Education Initiative",
+                campaignReport: "https://example.com/company-profile.pdf"
             ),
             
             // Healthcare campaign
@@ -308,7 +309,8 @@ static async Task SeedCampaignsAsync(
                 },
                 isDraft: false,
                 companyProfile: "https://example.com/company-profile.pdf",
-                organizationName: "Local Health Foundation"
+                organizationName: "Local Health Foundation",
+                campaignReport: "https://example.com/company-profile.pdf"
             ),
             
             // Environment campaign
@@ -325,7 +327,8 @@ static async Task SeedCampaignsAsync(
                 },
                 isDraft: true,
                 companyProfile: "https://example.com/company-profile.pdf",
-                organizationName: "Green Earth Organization"
+                organizationName: "Green Earth Organization",
+                campaignReport: "https://example.com/company-profile.pdf"
             )
         };
 

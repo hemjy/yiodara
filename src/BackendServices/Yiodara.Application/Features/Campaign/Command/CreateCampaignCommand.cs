@@ -30,7 +30,6 @@ namespace Yiodara.Application.Features.Campaign.Command
         public string CoverImageBase64 { get; set; }
         public bool IsDraft { get; set; }
         public List<string> OtherImagesBase64 { get; set; } = new List<string>();
-
     }
 
     public class CreateCampaignCommandHandler : IRequestHandler<CreateCampaignCommand, Result<Guid>>
@@ -80,7 +79,7 @@ namespace Yiodara.Application.Features.Campaign.Command
                     if (string.IsNullOrWhiteSpace(request.CoverImageBase64))
                         validationResults.Add(new ValidationResult("Cover image is required.", new[] { nameof(request.CoverImageBase64) }));
 
-                    ValidationHelper.ValidateBase64Document(request.CompanyProfile, nameof(request.CoverImageBase64), validationResults);
+                    ValidationHelper.ValidateBase64Document(request.CompanyProfile, nameof(request.CompanyProfile), validationResults);
                 }
 
                 if (validationResults.Any())
@@ -137,8 +136,7 @@ namespace Yiodara.Application.Features.Campaign.Command
                     .Create(request.Title, request.Description,
                     request.CampaignCatergoryId, request.Currency,
                     request.Amount, coverImageUrl, otherImageUrls, request.IsDraft,
-                    documentUrl, request.OrganizationName);
-
+                    documentUrl, request.OrganizationName, null);
 
                 // Add the new campaign to the repository
                 await _campaignRepository.AddAsync(newCampaign);
