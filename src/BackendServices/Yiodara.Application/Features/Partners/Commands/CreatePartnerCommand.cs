@@ -1,15 +1,9 @@
 ﻿using MediatR;
-using Microsoft.Extensions.Configuration;
 using Serilog;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Yiodara.Application.Common;
+using Yiodara.Application.Helpers;
 using Yiodara.Application.Interfaces.Repositories;
-using Yiodara.Domain.Entities;
 using Yiodara.Domain.Enums;
 
 namespace Yiodara.Application.Features.Partner.Command
@@ -50,6 +44,9 @@ namespace Yiodara.Application.Features.Partner.Command
         [Required(ErrorMessage = "Support provided is required.")]
         public SupportProvided SupportProvided { get; set; }
 
+        [StringLength(200, ErrorMessage = "Other support description cannot be longer than 200 characters.")]
+        public string? OtherSupportProvided { get; set; }
+
         [StringLength(500, ErrorMessage = "Contribution description cannot be longer than 500 characters.")]
         public string? HowDoesYourOrganizationAimToContribute { get; set; }
 
@@ -61,6 +58,24 @@ namespace Yiodara.Application.Features.Partner.Command
 
         [Required(ErrorMessage = "Agreement to share provided info is required.")]
         public bool AgreeToShareProvidedInfo { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (SupportProvided == SupportProvided.Others && OtherSupportProvided.IsEmpty())
+            {
+                yield return new ValidationResult(
+                    "Other support description is required when 'Other' is selected.",
+                    new[] { nameof(OtherSupportProvided) });
+            }
+
+            // Ensure OtherSupportProvided is not provided when SupportProvided is not Other
+            if (SupportProvided != SupportProvided.Others && !string.IsNullOrWhiteSpace(OtherSupportProvided))
+            {
+                yield return new ValidationResult(
+                    "Other support description should only be provided when 'Other' is selected.",
+                    new[] { nameof(OtherSupportProvided) });
+            }
+        }
     }
 
     public class CreatePartnerCommandHandler : IRequestHandler<CreatePartnerCommand, Result<Guid>>
@@ -93,6 +108,15 @@ namespace Yiodara.Application.Features.Partner.Command
                     return Result<Guid>.Failure("failed", validationResults);
                 }
 
+                var customValidationResults = request.Validate(context);
+                validationResults.AddRange(customValidationResults);
+
+                if (validationResults.Any())
+                {
+                    _logger.Warning("Validation failed for creating partner request: {ValidationResults}", validationResults);
+                    return Result<Guid>.Failure("Validation failed", validationResults);
+                }
+
                 // check if company already partners the particular campaign
 
                 var partnerdCampaignAlready = await _partnerRepository
@@ -123,6 +147,7 @@ namespace Yiodara.Application.Features.Partner.Command
                     request.PhoneNumber,
                     request.CampaignId,
                     request.SupportProvided,
+                    request.OtherSupportProvided,
                     request.HowDoesYourOrganizationAimToContribute,
                     request.WhatImpactDoYouHopeToAchieve,
                     request.AnyOtherComments,
