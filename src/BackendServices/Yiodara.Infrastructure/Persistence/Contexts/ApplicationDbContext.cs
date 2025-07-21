@@ -1,11 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Metrics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Yiodara.Domain.Entities;
 
 namespace Yiodara.Infrastructure.Persistence.Contexts
@@ -34,6 +28,7 @@ namespace Yiodara.Infrastructure.Persistence.Contexts
         public DbSet<VolunteerCountry> VolunteerCountries { get; set; }
 
         public DbSet<Event> Events { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
