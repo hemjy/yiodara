@@ -1,10 +1,14 @@
 using FluentEmail.Smtp;
+using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using System.Net;
 using System.Net.Mail;
+using Yiodara.Application;
 using Yiodara.Application.Features.Auth.Commands;
+using Yiodara.Application.Interfaces;
+using Yiodara.Application.Services;
 using Yiodara.Domain.Entities;
 using Yiodara.Infrastructure;
 using Yiodara.Infrastructure.Persistence.Contexts;
@@ -21,11 +25,12 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks();
 builder.Services.AddHttpContextAccessor();
 
+builder.Services.AddScoped<INotificationService, NotificationService>();
 // register mediator
 builder.Services.AddMediatR(cfg => 
 cfg.RegisterServicesFromAssemblies(new[] { typeof(Program).Assembly, typeof(SignUpUserCommand).Assembly}));
 
-
+builder.Services.AddValidatorsFromAssembly(typeof(AppAssembly).Assembly);
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
