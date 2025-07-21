@@ -23,6 +23,7 @@ namespace Yiodara.Domain.Entities
         public string PhoneNumber { get; set; }
         public Guid CampaignId { get; set; }
         public SupportProvided SupportProvided { get; set; }
+        public string? OtherSupportProvided { get; set; }
         public string? HowDoesYourOrganizationAimToContribute { get; set; }
         public string? WhatImpactDoYouHopeToAchieve { get; set; }
         public string? AnyOtherComments { get; set; }
@@ -41,6 +42,7 @@ namespace Yiodara.Domain.Entities
             string phoneNumber,
             Guid campaignId,
             SupportProvided supportProvided,
+            string? otherSupportProvided,
             string howDoesYourOrganizationAimToContribute,
             string whatImpactDoYouHopeToAchieve,
             string anyOtherComments,
@@ -57,6 +59,7 @@ namespace Yiodara.Domain.Entities
                 PhoneNumber = phoneNumber,
                 CampaignId = campaignId,
                 SupportProvided = supportProvided,
+                OtherSupportProvided = otherSupportProvided,
                 HowDoesYourOrganizationAimToContribute = howDoesYourOrganizationAimToContribute,
                 WhatImpactDoYouHopeToAchieve = whatImpactDoYouHopeToAchieve,
                 AnyOtherComments = anyOtherComments,
