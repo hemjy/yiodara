@@ -197,6 +197,23 @@ export interface DonorsResponse {
   hasNext: boolean;
 }
 
+// Notification data type from API
+export interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  isRead: boolean;
+  date: string; // ISO date string
+  isNew?: boolean; // Optional: for client-side logic
+  type?: 'donation' | 'volunteer' | 'partnership' | 'goal'; // Optional: for client-side logic
+}
+
+// Parameters for fetching notifications
+export interface NotificationParams {
+  pageNumber?: number;
+  pageSize?: number;
+}
+
 // Add these types to your existing api.ts file
 
 // Partnership list item from API
