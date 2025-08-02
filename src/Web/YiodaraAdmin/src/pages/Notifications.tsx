@@ -1,91 +1,18 @@
-import React, { useState } from 'react';
-import { Bell, Heart, Users, Handshake, Check, X, MoreVertical, Filter } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Bell, Check, X, MoreVertical, ServerCrash } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+import { useNotifications } from '@/hooks/useNotifications';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Notification } from '@/types/api';
 
-const initialNotifications = [
-  {
-    id: 1,
-    type: 'donation',
-    title: 'New Donation Received',
-    message: 'John Smith donated $500 to your "Clean Water Initiative" campaign. Thank you for making a difference in our community!',
-    time: 'Just Now',
-    isNew: true,
-    isRead: false,
-    amount: '$500',
-    donor: 'John Smith'
-  },
-  {
-    id: 2,
-    type: 'donation',
-    title: 'Large Donation Alert',
-    message: 'Anonymous donor contributed $2,000 to "Education for All" program. This brings us closer to our monthly goal!',
-    time: '15 mins ago',
-    isNew: true,
-    isRead: false,
-    amount: '$2,000',
-    donor: 'Anonymous'
-  },
-  {
-    id: 3,
-    type: 'partnership',
-    title: 'Partnership Opportunity',
-    message: 'Green Earth Foundation wants to collaborate on environmental projects. They are interested in co-funding your next initiative.',
-    time: '2 hours ago',
-    isNew: false,
-    isRead: false,
-    organization: 'Green Earth Foundation'
-  },
-  {
-    id: 4,
-    type: 'volunteer',
-    title: 'New Volunteer Registration',
-    message: 'Sarah Johnson signed up to volunteer for your upcoming community cleanup event scheduled for this weekend.',
-    time: '4 hours ago',
-    isNew: false,
-    isRead: true,
-    volunteer: 'Sarah Johnson'
-  },
-  {
-    id: 5,
-    type: 'donation',
-    title: 'Monthly Goal Achievement',
-    message: 'Congratulations! You have reached 80% of your monthly donation goal. Keep up the great work!',
-    time: '1 day ago',
-    isNew: false,
-    isRead: true,
-    progress: '80%'
-  },
-];
+interface NotificationIconProps {
+  isNew: boolean;
+}
 
-const NotificationIcon = ({ type, isNew }) => {
-  const getIcon = () => {
-    switch (type) {
-      case 'donation':
-        return <Heart className="w-5 h-5 text-white" />;
-      case 'volunteer':
-        return <Users className="w-5 h-5 text-white" />;
-      case 'partnership':
-        return <Handshake className="w-5 h-5 text-white" />;
-      default:
-        return <Bell className="w-5 h-5 text-white" />;
-    }
-  };
-
-  const getBgColor = () => {
-    switch (type) {
-      case 'donation':
-        return 'bg-[#BA24D5]';
-      case 'volunteer':
-        return 'bg-[#059669]';
-      case 'partnership':
-        return 'bg-[#DC6803]';
-      default:
-        return 'bg-[#6366F1]';
-    }
-  };
-
+const NotificationIcon: React.FC<NotificationIconProps> = ({ isNew }) => {
   return (
-    <div className={`w-10 h-10 sm:w-12 sm:h-12 ${getBgColor()}  cursor-pointer rounded-full flex-shrink-0 flex items-center justify-center relative`}>
-      {getIcon()}
+    <div className={`w-10 h-10 sm:w-12 sm:h-12 bg-[#6366F1] cursor-pointer rounded-full flex-shrink-0 flex items-center justify-center relative`}>
+      <Bell className="w-5 h-5 text-white" />
       {isNew && (
         <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></div>
       )}
@@ -93,57 +20,62 @@ const NotificationIcon = ({ type, isNew }) => {
   );
 };
 
-const Notifications = () => {
-  const [notifications, setNotifications] = useState(initialNotifications);
-  const [filter, setFilter] = useState('all'); // all, unread, donations, volunteers, partnerships
-  const [showActions, setShowActions] = useState(null);
+const Notifications: React.FC = () => {
+  const { data: fetchedNotifications, isLoading, error } = useNotifications();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
-  const newNotificationCount = notifications.filter(n => n.isNew && !n.isRead).length;
+  useEffect(() => {
+    if (fetchedNotifications?.data) {
+      // Add a client-side 'isNew' flag for the notification dot animation
+      const processed = fetchedNotifications.data.map((n: Notification) => ({ ...n, isNew: !n.isRead }));
+      setNotifications(processed);
+    }
+  }, [fetchedNotifications]);
+
+  const [filter, setFilter] = useState('all'); // all, unread
+  const [showActions, setShowActions] = useState<string | null>(null);
+
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
-  const markAsRead = (id) => {
-    setNotifications(prev => 
-      prev.map(notification => 
-        notification.id === id 
+  const markAsRead = (id: string) => {
+    setNotifications(prev =>
+      prev.map(notification =>
+        notification.id === id
           ? { ...notification, isRead: true, isNew: false }
           : notification
       )
     );
+    // TODO: Add API call to mark as read on the server
   };
 
   const markAllAsRead = () => {
-    setNotifications(prev => 
-      prev.map(notification => ({ 
-        ...notification, 
-        isRead: true, 
-        isNew: false 
-      }))
+    setNotifications(prev =>
+      prev.map(notification => ({...notification, isRead: true, isNew: false }))
     );
+    // TODO: Add API call to mark all as read
   };
 
-  const deleteNotification = (id) => {
+  const deleteNotification = (id: string) => {
     setNotifications(prev => prev.filter(n => n.id !== id));
     setShowActions(null);
+    // TODO: Add API call to delete notification
   };
 
   const getFilteredNotifications = () => {
     switch (filter) {
       case 'unread':
         return notifications.filter(n => !n.isRead);
-      case 'donations':
-        return notifications.filter(n => n.type === 'donation');
-      case 'volunteers':
-        return notifications.filter(n => n.type === 'volunteer');
-      case 'partnerships':
-        return notifications.filter(n => n.type === 'partnership');
       default:
         return notifications;
     }
   };
 
-  const getTimeAgo = (timeString) => {
-    // In a real app, you'd use a proper date library
-    return timeString;
+  const getTimeAgo = (dateString: string) => {
+    try {
+      return formatDistanceToNow(new Date(dateString), { addSuffix: true });
+    } catch (e) {
+      return dateString; // Fallback to raw string if date is invalid
+    }
   };
 
   const filteredNotifications = getFilteredNotifications();
@@ -156,9 +88,9 @@ const Notifications = () => {
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-raleway text-[#101828]">
               Notifications
             </h1>
-            {newNotificationCount > 0 && (
+            {unreadCount > 0 && (
               <span className="bg-[#BA24D5] cursor-pointer text-white text-sm font-semibold px-3 py-1 rounded-full min-w-[24px] text-center">
-                {newNotificationCount}
+                {unreadCount}
               </span>
             )}
           </div>
@@ -178,9 +110,6 @@ const Notifications = () => {
           {[
             { key: 'all', label: 'All', count: notifications.length },
             { key: 'unread', label: 'Unread', count: unreadCount },
-            { key: 'donations', label: 'Donations', count: notifications.filter(n => n.type === 'donation').length },
-            { key: 'volunteers', label: 'Volunteers', count: notifications.filter(n => n.type === 'volunteer').length },
-            { key: 'partnerships', label: 'Partnerships', count: notifications.filter(n => n.type === 'partnership').length },
           ].map((tab) => (
             <button
               key={tab.key}
@@ -198,12 +127,29 @@ const Notifications = () => {
       </div>
 
       <div className="space-y-3 sm:space-y-4">
-        {filteredNotifications.length === 0 ? (
+        {isLoading ? (
+          Array.from({ length: 5 }).map((_, index) => (
+            <div key={index} className="flex items-start gap-3 sm:gap-4 p-4 bg-white rounded-lg shadow-sm">
+              <Skeleton className="w-12 h-12 rounded-full flex-shrink-0" />
+              <div className="flex-grow space-y-2">
+                <Skeleton className="h-5 w-3/4" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-1/4" />
+              </div>
+            </div>
+          ))
+        ) : error ? (
+          <div className="text-center py-10 px-4 bg-white rounded-lg shadow-sm">
+            <ServerCrash className="mx-auto h-12 w-12 text-red-400" />
+            <h3 className="mt-2 text-lg font-medium text-gray-900">Failed to load notifications</h3>
+            <p className="mt-1 text-sm text-gray-500">Something went wrong while fetching data. Please try again later.</p>
+          </div>
+        ) : filteredNotifications.length === 0 ? (
           <div className="text-center py-12">
             <Bell className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No notifications</h3>
             <p className="text-gray-500">
-              {filter === 'all' ? "You're all caught up!" : `No ${filter} notifications found.`}
+              {filter === 'all' ? "You're all caught up!" : `No unread notifications found.`}
             </p>
           </div>
         ) : (
@@ -217,7 +163,7 @@ const Notifications = () => {
               }`}
             >
               <div className="flex items-start gap-3 sm:gap-4">
-                <NotificationIcon type={notification.type} isNew={notification.isNew} />
+                <NotificationIcon isNew={!!notification.isNew} />
                 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2 mb-2">
@@ -229,9 +175,9 @@ const Notifications = () => {
                     
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <span className={`text-xs sm:text-sm font-mulish whitespace-nowrap ${
-                        notification.isNew ? 'text-[#9F1AB1] font-semibold' : 'text-gray-500'
+                        !notification.isRead ? 'text-[#9F1AB1] font-semibold' : 'text-gray-500'
                       }`}>
-                        {getTimeAgo(notification.time)}
+                        {getTimeAgo(notification.date)}
                       </span>
                       
                       <div className="relative">
@@ -274,35 +220,6 @@ const Notifications = () => {
                   }`}>
                     {notification.message}
                   </p>
-                  
-                  {/* Additional Info */}
-                  {notification.amount && (
-                    <div className="flex flex-wrap gap-4 text-sm">
-                      <span className="font-semibold text-[#059669]">Amount: {notification.amount}</span>
-                      {notification.donor !== 'Anonymous' && (
-                        <span className="text-gray-600">From: {notification.donor}</span>
-                      )}
-                    </div>
-                  )}
-                  
-                  {notification.volunteer && (
-                    <div className="text-sm text-gray-600">
-                      <span className="font-medium">Volunteer: </span>{notification.volunteer}
-                    </div>
-                  )}
-                  
-                  {notification.organization && (
-                    <div className="text-sm text-gray-600">
-                      <span className="font-medium">Organization: </span>{notification.organization}
-                    </div>
-                  )}
-                  
-                  {notification.progress && (
-                    <div className="text-sm">
-                      <span className="font-medium text-[#059669]">Progress: </span>
-                      <span className="text-gray-600">{notification.progress}</span>
-                    </div>
-                  )}
                 </div>
               </div>
               
