@@ -369,61 +369,6 @@ const MyAccount = () => {
           )}
         </div>
 
-        {/* Payment Method Section */}
-        <div className="bg-white p-4 md:p-8 border rounded-lg">
-          {isEditingPayment ? (
-            // Edit Payment Mode
-            <>
-              <h3 className="text-xl md:text-2xl font-bold font-raleway mb-6">Update Payment Method</h3>
-              <form className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="cardNumber">
-                    Card Number
-                  </label>
-                  <Input id="cardNumber" name="cardNumber" type="text" placeholder="**** **** **** 1234" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="expiryDate">
-                        Expiry Date
-                      </label>
-                      <Input id="expiryDate" name="expiryDate" type="text" placeholder="MM/YY" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="cvc">
-                        CVC
-                      </label>
-                      <Input id="cvc" name="cvc" type="text" placeholder="123" />
-                    </div>
-                </div>
-                <div className="flex justify-end gap-4 pt-2">
-                    <Button type="button" variant="outline" onClick={() => setIsEditingPayment(false)}>
-                        Cancel
-                    </Button>
-                    <Button type="submit" className="bg-[#9F1AB1] hover:bg-[#8f179f]">
-                        Save Payment Method
-                    </Button>
-                </div>
-              </form>
-            </>
-          ) : (
-            // View Payment Mode
-            <div className="flex justify-between items-start">
-                <div>
-                    <h3 className="text-xl md:text-2xl font-bold font-raleway">Payment Method</h3>
-                    <p className="text-sm text-gray-500 font-mulish mt-1">Manage your payment methods</p>
-                    <div className="mt-6">
-                        <p className="text-sm text-gray-500 font-mulish">Default Card</p>
-                        <p className="font-semibold text-gray-800 font-mulish tracking-widest">Visa ending in 1234</p>
-                    </div>
-                </div>
-                 <Button variant="outline" className="border-[#F6D0FE]  font-mulish text-[#9F1AB1] hover:bg-[#FDF2FF] bg-[#FEFAFF] hover:text-[#9F1AB1] leading-[150%]" onClick={() => setIsEditingPayment(true)}>
-                  Change
-                  <Pencil className="ml-2 size-4" />
-                </Button>
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );
