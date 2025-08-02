@@ -16,11 +16,13 @@ const MyAccount = () => {
   const { toast } = useToast();
 
   const [fullName, setFullName] = useState(currentUser?.fullName || '');
+  const [email, setEmail] = useState(currentUser?.email || '');
+  const [phoneNumber, setPhoneNumber] = useState(currentUser?.phoneNumber || '');
+  const [location, setLocation] = useState(currentUser?.location || '');
   const [isSaving, setIsSaving] = useState(false);
   const [isAmountVisible, setIsAmountVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
-  const [isEditingPayment, setIsEditingPayment] = useState(false);
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -53,7 +55,17 @@ const MyAccount = () => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    console.log("Updated full name:", fullName);
+    // TODO: Replace with actual API call to update user profile
+    // For now, we'll just log the data and show a toast.
+    const updatedProfile = {
+      fullName,
+      email,
+      phoneNumber,
+      location,
+    };
+
+    console.log("Updated profile data:", updatedProfile);
+    
     toast({
       title: "Profile Updated",
       description: "Your profile information has been saved.",
@@ -65,6 +77,9 @@ const MyAccount = () => {
 
   const handleCancelEdit = () => {
     setFullName(currentUser?.fullName || '');
+    setEmail(currentUser?.email || '');
+    setPhoneNumber(currentUser?.phoneNumber || '');
+    setLocation(currentUser?.location || '');
     setIsEditing(false);
   };
 
@@ -231,16 +246,36 @@ const MyAccount = () => {
         {/* Profile Information Section */}
         <div className=" bg-white p-4 md:p-8 border rounded-lg">
           {isEditing ? (
-            <>
-              <h3 className="text-xl md:text-2xl font-bold font-raleway mb-6">Edit Information</h3>
-              <form className="space-y-6" onSubmit={handleProfileUpdate}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="username">
-                      Username
-                    </label>
-                    <Input id="username" type="text" defaultValue={currentUser?.userName} disabled />
+            <form onSubmit={handleProfileUpdate}>
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl md:text-2xl font-bold font-raleway">Personal Information</h3>
+                <div className="flex gap-4">
+                  <Button type="button" variant="outline" onClick={handleCancelEdit} disabled={isSaving}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" className="bg-[#9F1AB1] hover:bg-[#8f179f]" disabled={isSaving}>
+                    {isSaving ? 'Saving...' : 'Save Changes'}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Profile Picture</label>
+                  <div className="flex items-center gap-4 font-raleway">
+                    <div className="bg-[#FBE8FF] size-32 rounded-full flex items-center justify-center flex-shrink-0 border-2  border-[#F6D0FE]">
+                    <span className="text-[#9F1AB1] text-[56px] font-extrabold ">
+                        {currentUser?.fullName?.charAt(0).toUpperCase() || 'A'}
+                      </span>
+                    </div>
+                    <button type="button" className="text-[#9F1AB1] underline font-semibold flex items-center gap-2">
+                      <Pencil className="size-4" />
+                      Change Picture
+                    </button>
                   </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="fullName">
                       Full Name
@@ -250,25 +285,52 @@ const MyAccount = () => {
                       type="text" 
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)} 
+                      placeholder="Emmanuel Korede"
+                      className="border-gray-300 focus:border-[#9F1AB1] focus:ring-[#9F1AB1]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="email">
+                      Email Address
+                    </label>
+                    <Input 
+                      id="email" 
+                      type="email" 
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)} 
+                      placeholder="emmanuelkorede@gmail.com"
+                      className="border-gray-300 focus:border-[#9F1AB1] focus:ring-[#9F1AB1]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="phoneNumber">
+                      Phone Number
+                    </label>
+                    <Input 
+                      id="phoneNumber" 
+                      type="text" 
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)} 
+                      placeholder="+234702345600"
+                      className="border-gray-300 focus:border-[#9F1AB1] focus:ring-[#9F1AB1]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="location">
+                      Location
+                    </label>
+                    <Input 
+                      id="location" 
+                      type="text" 
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)} 
+                      placeholder="Glasgow, United Kingdom"
+                      className="border-gray-300 focus:border-[#9F1AB1] focus:ring-[#9F1AB1]"
                     />
                   </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="email">
-                    Email Address
-                  </label>
-                  <Input id="email" type="email" defaultValue={currentUser?.email} disabled />
-                </div>
-                <div className="flex justify-end gap-4">
-                  <Button type="button" variant="outline" onClick={handleCancelEdit} disabled={isSaving}>
-                    Cancel
-                  </Button>
-                  <Button type="submit" className="bg-[#9F1AB1] hover:bg-[#8f179f]" disabled={isSaving}>
-                    {isSaving ? 'Saving...' : 'Save Changes'}
-                  </Button>
-                </div>
-              </form>
-            </>
+              </div>
+            </form>
           ) : (
             // View Mode
             <>
@@ -279,7 +341,7 @@ const MyAccount = () => {
                   <Pencil className="ml-0 size-2" />
                 </Button>
               </div>
-              <div className="grid grid-cols-2 gap-x-8 gap-y-6 pt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 pt-4">
                 <div className="space-y-2">
                   <p className="text-[#475467] font-mulish font-normal leading-[150%] text-base">Full Name</p>
                   <p className="text-[#101828] text-[16px] font-raleway font-bold">{currentUser?.fullName}</p>
