@@ -91,8 +91,8 @@ namespace Yiodara.Application.Features.Admin.Query
 
                         donorList.Add(new GetDonorsDto
                         {
-                            Id = new Guid(user.Id),
-                            Name = user.FullName,
+                            Id = user.Id,
+                            Name = user.FullName ?? "",
                             TotalDonation = totalDonation,
                             LastDonationAmount = lastDonation.Amount,
                             LastDonationDate = lastDonation.Created,

@@ -1,12 +1,16 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 using Yiodara.Application.Common;
 using Yiodara.Application.DTOs;
+using Yiodara.Application.Helpers;
 using Yiodara.Application.Interfaces;
 using Yiodara.Application.Interfaces.Auth;
+using Yiodara.Application.Validations;
 using Yiodara.Domain.Entities;
 
 namespace Yiodara.Application.Features.Auth.Commands
@@ -28,19 +32,24 @@ namespace Yiodara.Application.Features.Auth.Commands
 
         [StringLength(10, ErrorMessage = "User role cannot be longer than 10 characters.")]
         public string? Role { get; set; } = "Donor";
+
+        [StringLength(20, MinimumLength = 7, ErrorMessage = "Phone number must be between 7 and 20 characters.")]
+        public string? PhoneNumber { get; set; }
     }
+
+    
 
     public class SignUpCommandHandler : IRequestHandler<SignUpUserCommand, Result<SignUpResponseDto>>
     {
         private readonly UserManager<Domain.Entities.User> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly RoleManager<IdentityRole<Guid>> _roleManager;
         private readonly IUtilityService _utilityService;
         private readonly ILogger _logger;
         private readonly IJwtTokenGenerator _jwtToken;
 
         public SignUpCommandHandler(
             UserManager<Domain.Entities.User> userManager,
-            RoleManager<IdentityRole> roleManager,
+            RoleManager<IdentityRole<Guid>> roleManager,
            IUtilityService utilityService,
             ILogger logger,
             IJwtTokenGenerator jwtTokenGenerator)
@@ -63,6 +72,18 @@ namespace Yiodara.Application.Features.Auth.Commands
 
                 bool isValid = Validator.TryValidateObject(request, context, validationResults, true);
 
+                // Additional phone number validation
+                if (!string.IsNullOrWhiteSpace(request.PhoneNumber))
+                {
+                    var phoneValidator = new InternationalPhoneAttribute();
+                    if (!phoneValidator.IsValid(request.PhoneNumber))
+                    {
+                        validationResults.Add(new ValidationResult(
+                            phoneValidator.FormatErrorMessage("Phone Number"),
+                            new[] { nameof(request.PhoneNumber) }));
+                        isValid = false;
+                    }
+                }
 
                 if (!isValid)
                 {
@@ -87,12 +108,21 @@ namespace Yiodara.Application.Features.Auth.Commands
 
                 if (!await _roleManager.RoleExistsAsync(request.Role))
                 {
-                    await _roleManager.CreateAsync(new IdentityRole(request.Role));
+                    await _roleManager.CreateAsync(new IdentityRole<Guid>(request.Role));
                 }
 
                 var locationInfoResponse = await _utilityService.GetGeoInfoByClientIp();
                 if (!locationInfoResponse.Succeeded || !locationInfoResponse.Data.Success) return Result<SignUpResponseDto>.Failure(locationInfoResponse.Message);
-                
+
+                // Normalize phone number with country code from location
+                var normalizedPhoneNumber = PhoneHelper.NormalizePhoneNumber(request.PhoneNumber, locationInfoResponse.Data.Country_code);
+
+                // Check if phone number already exists 
+                var existingPhoneUser = await _userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == normalizedPhoneNumber);
+                if (existingPhoneUser != null)
+                    return Result<SignUpResponseDto>.Failure("User with this phone number already exists");
+
+
                 var user = new Domain.Entities.User
                 {
                     FullName = request.FullName,
@@ -104,6 +134,7 @@ namespace Yiodara.Application.Features.Auth.Commands
                     CountryCode = locationInfoResponse.Data.Country_code,
                     CountryFlag = locationInfoResponse.Data.Country_flag,
                     CurrencyCode = locationInfoResponse.Data.Currency_Code,
+                    PhoneNumber = normalizedPhoneNumber
                 };
 
                 var createResult = await _userManager.CreateAsync(user, request.Password);

@@ -63,7 +63,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
     var userManager = services.GetRequiredService<UserManager<User>>();
     var dbContext = services.GetRequiredService<ApplicationDbContext>();
 
@@ -94,7 +94,7 @@ app.Run();
 
 
 // seed roles - donor, volunteer and admin
-static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
+static async Task SeedRolesAsync(RoleManager<IdentityRole<Guid>> roleManager)
 {
     var roleNames = new[] { "Donor", "Volunteer", "Admin" };
 
@@ -103,14 +103,14 @@ static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
         var roleExist = await roleManager.RoleExistsAsync(roleName);
         if (!roleExist)
         {
-            var role = new IdentityRole(roleName);
+            var role = new IdentityRole<Guid>(roleName);
             await roleManager.CreateAsync(role);
         }
     }
 }
 
 // Seed an Admin user 
-static async Task SeedAdminUserAsync(UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+static async Task SeedAdminUserAsync(UserManager<User> userManager, RoleManager<IdentityRole<Guid>> roleManager)
 {
     var adminUser = await userManager.FindByEmailAsync("admin@admin.com");
 

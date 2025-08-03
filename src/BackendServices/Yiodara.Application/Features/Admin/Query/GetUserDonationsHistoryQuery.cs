@@ -1,13 +1,7 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Yiodara.Application.Common;
 using Yiodara.Application.Helpers;
 using Yiodara.Application.Interfaces.Repositories;
@@ -17,7 +11,7 @@ namespace Yiodara.Application.Features.Admin.Query
     public class GetUserDonationsHistoryQuery : PaginationRequest, IRequest<Result<UserDonationsDto>>
     {
         [Required]
-        public string? UserId { get; set; }
+        public Guid UserId { get; set; }
     }
 
     public class UserDonationsDto

@@ -53,5 +53,18 @@ namespace Yiodara.Domain.Entities
             IsDeleted = true;
             LastModified = DateTime.UtcNow;
         }
+
+        // Navigation properties
+        public virtual ICollection<EventVolunteers> EventVolunteers { get; set; } = new List<EventVolunteers>();
+
+        // Helper property to get event's volunteers directly
+        public IEnumerable<User?> Volunteers => EventVolunteers
+            .Where(ev => !ev.IsDeleted)
+            .Select(ev => ev.Volunteer)
+            .Where(v => v != null);
+
+        // Helper property to get active volunteer count
+        public int ActiveVolunteerCount => EventVolunteers
+            .Count(ev => !ev.IsDeleted);
     }
 }

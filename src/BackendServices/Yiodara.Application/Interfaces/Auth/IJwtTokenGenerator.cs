@@ -8,6 +8,7 @@ namespace Yiodara.Application.Interfaces.Auth
 {
     public interface IJwtTokenGenerator
     {
-        (string token, string refreshToken, DateTime refreshTokenExp) GenerateJwtTokenInfo(string userId, string username, List<string> role);
+        (string token, string refreshToken, DateTime refreshTokenExp) GenerateJwtTokenInfo(Guid userId, string username, List<string> roles);
+        string GenerateRefreshToken();
     }
 }
