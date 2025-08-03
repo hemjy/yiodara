@@ -23,6 +23,7 @@ namespace Yiodara.Application.Features.Campaign.Command
         public List<string>? OtherImagesBase64 { get; set; }
         public List<string> ImagesToDelete { get; set; } = new List<string>();
         public bool IsDraft { get; set; } = false;
+        public string? CampaignReport { get; set; }
     }
 
     public class UpdateCampaignDto
@@ -99,7 +100,8 @@ namespace Yiodara.Application.Features.Campaign.Command
                     if (request.Amount <= 0)
                         validationResults.Add(new ValidationResult("Amount is required and must be greater than 0.", new[] { nameof(request.Amount) }));
 
-                    ValidationHelper.ValidateBase64Document(request.CompanyProfile, nameof(request.CoverImageBase64), validationResults);
+                    ValidationHelper.ValidateBase64Document(request.CompanyProfile, nameof(request.CompanyProfile), validationResults);
+                    ValidationHelper.ValidateBase64Document(request.CampaignReport, nameof(request.CampaignReport), validationResults);
                 }
 
                 if (validationResults.Any())
@@ -143,6 +145,24 @@ namespace Yiodara.Application.Features.Campaign.Command
 
                 if (request.OrganizationName != null)
                     campaignToBeEdited.OrganizationName = request.OrganizationName.Trim();
+
+
+                string? documentUrl = null;
+
+                if (request.CampaignReport.IsNotEmpty())
+                {
+                    try
+                    {
+                        _logger.Information("Uploading campaign report...");
+                        documentUrl = await _cloudinaryService.UploadBase64DocumentAsync(request.CampaignReport);
+                        campaignToBeEdited.CampaignReport = documentUrl;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error(ex, "Failed to upload campaign report.");
+                        return Result<UpdateCampaignDto>.Failure("Failed to upload campaign report. Please ensure the file is a valid base64-encoded document and less than 10MB.");
+                    }
+                }
 
                 campaignToBeEdited.LastModified = DateTime.UtcNow;
                 campaignToBeEdited.IsDraft = request.IsDraft;

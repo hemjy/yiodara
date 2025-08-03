@@ -28,10 +28,11 @@ namespace Yiodara.Domain.Entities
         public List<string> OtherImages { get; set; } = new List<string>();
 
         public bool IsDraft { get; set; }
+        public string? CampaignReport { get; set; }
 
         public static Campaign Create(string title, string description, Guid campaignCategoryId,
             string currency, double amount, string coverImage,List<string> otherImages, bool isDraft,
-            string companyProfile, string organizationName)
+            string companyProfile, string organizationName, string campaignReport)
             => new()
             {
                 Title = title,
@@ -43,7 +44,8 @@ namespace Yiodara.Domain.Entities
                 OtherImages = otherImages,
                 IsDraft = isDraft,
                 CompanyProfile = companyProfile,
-                OrganizationName = organizationName
+                OrganizationName = organizationName,
+                CampaignReport = campaignReport
             };
     }
 }

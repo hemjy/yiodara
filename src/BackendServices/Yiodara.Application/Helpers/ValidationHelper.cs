@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Security.Permissions;
 
 namespace Yiodara.Application.Helpers
 {
@@ -10,7 +11,7 @@ namespace Yiodara.Application.Helpers
             {
                 if (base64Document.IsEmpty())
                 {
-                    validationResults.Add(new ValidationResult("Company profile document is required, (10Mb limit).", new[] { propertyName }));
+                    validationResults.Add(new ValidationResult($"{propertyName} document is required, (10Mb limit).", new[] { propertyName }));
                     return;
                 }
                 string base64Content;
@@ -26,7 +27,7 @@ namespace Yiodara.Application.Helpers
 
                 if (!IsValidBase64String(base64Content))
                 {
-                    validationResults.Add(new ValidationResult("Cover image is not a valid base64 string.", new[] { propertyName }));
+                    validationResults.Add(new ValidationResult($"{propertyName} is not a valid base64 string.", new[] { propertyName }));
                     return;
                 }
 
@@ -35,12 +36,12 @@ namespace Yiodara.Application.Helpers
                 const int maxFileSizeBytes = 10 * 1024 * 1024;
                 if (documentBytes.Length > maxFileSizeBytes)
                 {
-                    validationResults.Add(new ValidationResult("Cover image size exceeds the 10MB limit.", new[] { propertyName }));
+                    validationResults.Add(new ValidationResult($"{propertyName} size exceeds the 10MB limit.", new[] { propertyName }));
                 }
             }
             catch (FormatException)
             {
-                validationResults.Add(new ValidationResult("Cover image is not a valid base64 format.", new[] { propertyName }));
+                validationResults.Add(new ValidationResult($"{propertyName} is not a valid base64 format.", new[] { propertyName }));
             }
         }
 
