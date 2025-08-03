@@ -9,7 +9,6 @@
   <ItemGroup>
     <Folder Include="Features\Admin\Command\" />
     <Folder Include="Features\Payment\Query\" />
-    <Folder Include="Validations\" />
   </ItemGroup>
 
   <ItemGroup>

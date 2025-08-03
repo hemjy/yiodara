@@ -1,18 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Yiodara.Application.Common;
-using Yiodara.Application.Features.Admin.Query;
 using Yiodara.Application.Helpers;
 using Yiodara.Application.Interfaces.Repositories;
-using Yiodara.Domain.Entities;
-using Yiodara.Domain.Enums;
 
 namespace Yiodara.Application.Features.Admin.Query
 {
@@ -22,7 +13,7 @@ namespace Yiodara.Application.Features.Admin.Query
 
     public class VolunteerDto
     {
-        public string UserId { get; set; }
+        public Guid UserId { get; set; }
         public string UserName { get; set; }
         public string FullName { get; set; }
         public string Email { get; set; }
@@ -34,14 +25,14 @@ namespace Yiodara.Application.Features.Admin.Query
     {
         private readonly ILogger _logger;
         private readonly IGenericRepositoryAsync<Domain.Entities.User> _userRepository;
-        private readonly IGenericRepositoryAsync<IdentityUserRole<string>> _userRoleRepository;
-        private readonly IGenericRepositoryAsync<IdentityRole> _roleRepository;
+        private readonly IGenericRepositoryAsync<IdentityUserRole<Guid>> _userRoleRepository;
+        private readonly IGenericRepositoryAsync<IdentityRole<Guid>> _roleRepository;
 
         public GetVolunteersQueryHandler(
             ILogger logger,
             IGenericRepositoryAsync<Domain.Entities.User> userRepository,
-            IGenericRepositoryAsync<IdentityUserRole<string>> userRoleRepository,
-            IGenericRepositoryAsync<IdentityRole> roleRepository)
+            IGenericRepositoryAsync<IdentityUserRole<Guid>> userRoleRepository,
+            IGenericRepositoryAsync<IdentityRole<Guid>> roleRepository)
         {
             _logger = logger;
             _userRepository = userRepository;

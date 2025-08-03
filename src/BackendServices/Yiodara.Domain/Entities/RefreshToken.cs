@@ -10,7 +10,7 @@ namespace Yiodara.Domain.Entities
     {
         private RefreshToken() { }
 
-        public string UserId { get; set; }
+        public Guid UserId { get; set; }
 
         public User User { get; set; }
 
@@ -20,7 +20,7 @@ namespace Yiodara.Domain.Entities
 
         public bool IsRevoked { get; set; }
 
-        public static RefreshToken Create(string UserId, string refreshToken, DateTime expiration) => new()
+        public static RefreshToken Create(Guid UserId, string refreshToken, DateTime expiration) => new()
         {
             UserId = UserId,
             ExpirationDate = expiration,

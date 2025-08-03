@@ -21,7 +21,7 @@ namespace Yiodara.Domain.Entities
         public string? ProviderRequest { get; set; }
         public string? ProviderResponse { get; set; }
         public DateTime Date { get; set; }
-        public string? UserId { get; set; }
+        public Guid UserId { get; set; }
         public Guid CampaignId { get; set; }
         public virtual Campaign Campaign { get; set; }
 

@@ -40,7 +40,7 @@ namespace Yiodara.Infrastructure
                         options.UseNpgsql(configuration["DefaultConnection"] ?? ""));
             Console.WriteLine($"DefaultConnection: {configuration["DefaultConnection"]}");
 
-            services.AddIdentity<User, IdentityRole>(options =>
+            services.AddIdentity<User, IdentityRole<Guid>>(options =>
             {
                 options.Password.RequireDigit = true;
                 options.Password.RequireLowercase = true;

@@ -1,15 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 using Yiodara.Application.Interfaces.Auth;
-using Yiodara.Domain.Entities;
 
 namespace Yiodara.Infrastructure.Identity
 {
@@ -22,16 +17,19 @@ namespace Yiodara.Infrastructure.Identity
             _configuration = configuration;
         }
 
-        public (string token, string refreshToken, DateTime refreshTokenExp) GenerateJwtTokenInfo(string userId, string username, List<string> roles)
+        public (string token, string refreshToken, DateTime refreshTokenExp) GenerateJwtTokenInfo(Guid userId, string username, List<string> roles)
         {
+            // Convert GUID to string for claims
+            var userIdString = userId.ToString();
+
             // Define claims for the JWT token
             var claims = new List<Claim>
             {
-        new Claim(ClaimTypes.Name, username),
-        new Claim(ClaimTypes.Email, username),
-        new Claim(ClaimTypes.NameIdentifier, userId), // Use NameIdentifier (PrimarySid) for user ID
-        new Claim(JwtRegisteredClaimNames.Sub, userId), // Subject: typically user ID or username
-        new Claim(JwtRegisteredClaimNames.Iat, ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds().ToString(), ClaimValueTypes.String) // Issued At
+                new Claim(ClaimTypes.Name, username),
+                new Claim(ClaimTypes.Email, username),
+                new Claim(ClaimTypes.NameIdentifier, userIdString), // Use NameIdentifier (PrimarySid) for user ID
+                new Claim(JwtRegisteredClaimNames.Sub, userIdString), // Subject: typically user ID or username
+                new Claim(JwtRegisteredClaimNames.Iat, ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds().ToString(), ClaimValueTypes.String) // Issued At
             };
 
             claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
@@ -40,8 +38,8 @@ namespace Yiodara.Infrastructure.Identity
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            // Get token expiration time (you can define this in your method)
-            var expirationTime = DateTime.UtcNow.AddHours(1); // Example: token expires in 1 hour
+            // Get token expiration time
+            var expirationTime = GetAccessTokenExpiration();
 
             // Create the JWT token
             var token = new JwtSecurityToken(
@@ -58,7 +56,7 @@ namespace Yiodara.Infrastructure.Identity
 
         public string GenerateRefreshToken()
         {
-            // You can generate a refresh token as a random string
+            // Generate a refresh token as a random string
             var randomNumber = new byte[32];
             using (var rng = new System.Security.Cryptography.RNGCryptoServiceProvider())
             {
@@ -72,11 +70,25 @@ namespace Yiodara.Infrastructure.Identity
             var accessTokenExpirationMinutes = int.Parse(_configuration["JwtSettings:AccessTokenExpirationMinutes"]);
             return DateTime.UtcNow.AddMinutes(accessTokenExpirationMinutes);
         }
+
         private DateTime GetRefreshTokenExpiration()
         {
             var refreshTokenExpirationDays = int.Parse(_configuration["JwtSettings:RefreshTokenExpirationDays"]);
             return DateTime.UtcNow.AddDays(refreshTokenExpirationDays);
         }
 
+        // Helper method to extract GUID from JWT token claims
+        public static Guid GetUserIdFromClaims(ClaimsPrincipal principal)
+        {
+            var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                           ?? principal.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+            {
+                throw new InvalidOperationException("Invalid or missing user ID in token claims");
+            }
+
+            return userId;
+        }
     }
 }

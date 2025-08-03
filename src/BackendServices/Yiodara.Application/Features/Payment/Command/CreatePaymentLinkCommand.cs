@@ -33,7 +33,7 @@ namespace Yiodara.Application.Features.Payment.Command
 
         //public string? CancelUrl { get; set; }
 
-        public string? UserId { get; set; }
+        public Guid UserId { get; set; }
     }
 
     public class CreatePaymentLinkResponse
@@ -104,7 +104,7 @@ namespace Yiodara.Application.Features.Payment.Command
                                 UnitAmount = (long)(request.Amount * 100), // Convert to cents
                                 ProductData = new SessionLineItemPriceDataProductDataOptions
                                 {
-                                    Name = request.UserId
+                                    Name = request.UserId.ToString()
                                 }
                             },
                             Quantity = 1

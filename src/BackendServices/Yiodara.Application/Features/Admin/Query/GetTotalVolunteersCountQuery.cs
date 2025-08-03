@@ -25,14 +25,14 @@ namespace Yiodara.Application.Features.Admin.Query
     {
         private readonly ILogger _logger;
         private readonly IGenericRepositoryAsync<Domain.Entities.User> _userRepository;
-        private readonly IGenericRepositoryAsync<IdentityUserRole<string>> _userRoleRepository;
-        private readonly IGenericRepositoryAsync<IdentityRole> _roleRepository;
+        private readonly IGenericRepositoryAsync<IdentityUserRole<Guid>> _userRoleRepository;
+        private readonly IGenericRepositoryAsync<IdentityRole<Guid>> _roleRepository;
 
         public GetTotalVolunteersCountQueryHandler(
             ILogger logger,
             IGenericRepositoryAsync<Domain.Entities.User> userRepository,
-            IGenericRepositoryAsync<IdentityUserRole<string>> userRoleRepository,
-            IGenericRepositoryAsync<IdentityRole> roleRepository)
+            IGenericRepositoryAsync<IdentityUserRole<Guid>> userRoleRepository,
+            IGenericRepositoryAsync<IdentityRole<Guid>> roleRepository)
         {
             _logger = logger;
             _userRepository = userRepository;
