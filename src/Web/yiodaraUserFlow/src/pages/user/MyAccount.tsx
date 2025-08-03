@@ -7,6 +7,7 @@ import { useDonationHistory } from "@/hooks/useDonationHistory";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Eye, EyeOff, Pencil, ArrowRight } from "lucide-react";
+import ProfilePictureModal from '@/components/user/ProfilePictureModal';
 
 const MyAccount = () => {
     useEffect(()=>{
@@ -23,6 +24,7 @@ const MyAccount = () => {
   const [isAmountVisible, setIsAmountVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [isPictureModalOpen, setIsPictureModalOpen] = useState(false);
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -39,6 +41,19 @@ const MyAccount = () => {
     new: false,
     confirm: false,
   });
+
+  useEffect(() => {
+    const originalStyle = window.getComputedStyle(document.body).overflow;
+    if (isPictureModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = originalStyle;
+    }
+
+    return () => {
+      document.body.style.overflow = originalStyle;
+    };
+  }, [isPictureModalOpen]);
 
   const { data: historyData, isLoading: isLoadingHistory } = useDonationHistory({
     userId: currentUser?.userId || '',
@@ -268,7 +283,7 @@ const MyAccount = () => {
                         {currentUser?.fullName?.charAt(0).toUpperCase() || 'A'}
                       </span>
                     </div>
-                    <button type="button" className="text-[#9F1AB1] underline font-semibold flex items-center gap-2">
+                    <button type="button" onClick={() => setIsPictureModalOpen(true)} className="text-[#9F1AB1] underline font-semibold flex items-center gap-2">
                       <Pencil className="size-4" />
                       Change Picture
                     </button>
@@ -432,6 +447,7 @@ const MyAccount = () => {
         </div>
 
       </div>
+      {isPictureModalOpen && <ProfilePictureModal onClose={() => setIsPictureModalOpen(false)} />}
     </div>
   );
 };
