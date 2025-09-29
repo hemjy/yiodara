@@ -67,6 +67,8 @@ using (var scope = app.Services.CreateScope())
     var userManager = services.GetRequiredService<UserManager<User>>();
     var dbContext = services.GetRequiredService<ApplicationDbContext>();
 
+    dbContext.Database.Migrate();
+
     await SeedRolesAsync(roleManager);
     await SeedAdminUserAsync(userManager, roleManager);
     var categoryIds = await SeedCampaignCategoriesAsync(dbContext);
@@ -97,7 +99,7 @@ app.Run();
 static async Task SeedRolesAsync(RoleManager<IdentityRole<Guid>> roleManager)
 {
     var roleNames = new[] { "Donor", "Volunteer", "Admin" };
-
+    
     foreach (var roleName in roleNames)
     {
         var roleExist = await roleManager.RoleExistsAsync(roleName);

@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Yiodara.Infrastructure.Migrations
 {
-    public partial class majorChangesToDB : Migration
+    public partial class initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -274,6 +274,7 @@ namespace Yiodara.Infrastructure.Migrations
                     OrganizationName = table.Column<string>(type: "text", nullable: true),
                     OtherImages = table.Column<List<string>>(type: "jsonb", nullable: false),
                     IsDraft = table.Column<bool>(type: "boolean", nullable: false),
+                    CampaignReport = table.Column<string>(type: "text", nullable: true),
                     CreatedBy = table.Column<string>(type: "text", nullable: true),
                     ModifiedBy = table.Column<string>(type: "text", nullable: true),
                     Modified = table.Column<bool>(type: "boolean", nullable: false),

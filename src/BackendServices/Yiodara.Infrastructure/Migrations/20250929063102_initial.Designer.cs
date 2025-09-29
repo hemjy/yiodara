@@ -13,8 +13,8 @@ using Yiodara.Infrastructure.Persistence.Contexts;
 namespace Yiodara.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250803143315_majorChangesToDB")]
-    partial class majorChangesToDB
+    [Migration("20250929063102_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -181,6 +181,9 @@ namespace Yiodara.Infrastructure.Migrations
 
                     b.Property<Guid>("CampaignCategoryId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("CampaignReport")
+                        .HasColumnType("text");
 
                     b.Property<string>("CompanyProfile")
                         .HasColumnType("text");
